@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SignUpForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -41,6 +43,8 @@ const SignUpForm = () => {
 
     setError('');
     console.log('Form submitted:', formData);
+
+    navigate('/jobboard');
   };
 
   return (
