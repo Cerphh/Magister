@@ -44,7 +44,7 @@ const SignUpForm = () => {
     setError('');
     console.log('Form submitted:', formData);
 
-    navigate('/jobboard');
+    navigate('/jobs');
   };
 
   return (
