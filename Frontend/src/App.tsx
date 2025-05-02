@@ -6,6 +6,8 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<SignUpForm />} />
+        
+
       </Routes>
     </Router>
   );
