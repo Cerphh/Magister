@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const SignUpForm = () => {
   const navigate = useNavigate();
@@ -166,8 +167,7 @@ const SignUpForm = () => {
     </button>
 
     <p className="text-center text-base mt-10">
-      Already have an account?{' '}
-      <span className="text-[#C9D6DF] hover:underline cursor-pointer">Sign In</span>
+      Already have an account?<Link to="/login">Sign In</Link>
     </p>
   </form>
 </div>
