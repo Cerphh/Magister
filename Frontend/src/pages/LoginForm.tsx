@@ -1,0 +1,77 @@
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import loginImage from "../assets/loginimage.png";
+import "../styles/LoginForm.css";
+
+
+const LoginForm: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Logging in with:", { email, password });
+  };
+
+  return (
+    <div className="background">
+      <div className="container-wrapper">
+        <div className="form-container">
+          <div className="form-box"> 
+            <div className="form-header">
+              <h2>Log In</h2>
+              <p>Welcome back! Please enter your details</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="login-form">
+              <div className="input-field">
+                <label>EMAIL</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@gmail.com"
+                  required
+                />
+              </div>
+
+              <div className="input-field">
+                <label>PASSWORD</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="........"
+                  required
+                />
+              </div>
+
+              <div className="forgot-password">
+                <Link to="/forgot-password">Forgot password?</Link>
+              </div>
+
+              <button type="submit" className="submit-btn">Login</button>
+            </form>
+
+            <div className="signup-footer">
+              <p>
+                Didn't have an account? <Link to="/">Sign Up</Link>
+              </p>
+            </div>
+          </div>
+
+          <div className="illustration-box">
+          <img
+              src={loginImage}
+              alt="Login Graphics"
+              style={{ width: "100%", height: "auto", objectFit: "contain" }}
+          />
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginForm;
