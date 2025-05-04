@@ -1,7 +1,10 @@
-import { Search, Filter, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Filter, Download, X } from 'lucide-react';
 import Navbar from '../components/NavBar';
 
 const ResourceHub = () => {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <div className="bg-[#F8FAFC] min-h-screen">
       <Navbar />
@@ -33,12 +36,14 @@ const ResourceHub = () => {
             <Search className="w-4 h-4 text-gray-500" />
           </div>
         </div>
-        {/* Share Input */}
-        <input
-          type="text"
-          placeholder="Share learning resources"
-          className="w-full border border-gray-300 rounded-full px-5 py-2 mb-6 outline-none bg-white text-sm"
-        />
+
+        {/* Share Button */}
+        <button
+          onClick={() => setShowModal(true)}
+          className="w-full rounded-full border border-gray-300 px-4 py-2 text-left text-gray-600 hover:bg-gray-100 mb-4"
+        >
+          Share learning resources
+        </button>
 
         {/* Resource Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -62,7 +67,72 @@ const ResourceHub = () => {
             </div>
           ))}
         </div>
-      </div>    
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+          <div className="relative bg-white border border-gray-200 rounded-md shadow-lg w-full max-w-lg">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="p-6">
+              <form className="space-y-6">
+                {/* Title */}
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                    Title
+                  </label>
+                  <input
+                    id="title"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <input
+                    id="description"
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Upload */}
+                <div>
+                  <label htmlFor="upload" className="block text-sm font-medium text-gray-700 mb-1">
+                    Upload
+                  </label>
+                  <input
+                    id="upload"
+                    type="file"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700"
+                  />
+                </div>
+
+                {/* Submit */}
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    className="bg-[#205295] hover:bg-[#144272] text-white font-semibold px-6 py-2 rounded-md"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

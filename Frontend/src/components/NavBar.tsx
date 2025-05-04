@@ -20,19 +20,18 @@ const Navbar = () => {
 
   const handleLogout = () => {
     // Placeholder logic for actual logout (e.g., clearing tokens)
-    navigate('/');
+    navigate('/login');
   };
 
   return (
-    <nav className="w-full bg-[#082C57] px-4 py-5 flex items-center justify-between shadow-md">
+    <nav className="w-full bg-[#0A2647] px-6 py-1 flex items-center justify-between shadow-md">
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <img src="/logo.png" alt="Magister Logo" className="w-6 h-6" />
-        <span className="text-white font-bold text-lg">magister</span>
+        <img src="/src/assets/logo.png" alt="Magister Logo" className="w-50 h-16" />
       </div>
 
       {/* Nav Links */}
-      <div className="flex items-center gap-8 text-white text-sm font-medium">
+      <div className="flex items-center gap-10 text-white text-xl font-medium">
         <Link to="/jobs" className="hover:underline underline-offset-4">Job Board</Link>
         <Link to="/resources" className="hover:underline underline-offset-4">Resource Hub</Link>
         <Link to="/events" className="hover:underline underline-offset-4">Events</Link>
@@ -48,16 +47,42 @@ const Navbar = () => {
           </div>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-gray-800">
+            <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-gray-800">
               <ul className="py-2 text-sm">
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Help</li>
-                <li
-                  onClick={handleLogout}
-                  className="px-4 py-2 hover:bg-gray-100 text-red-500 cursor-pointer"
-                >
-                  Logout
+                <li>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/help"
+                    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Help
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                  >
+                    Logout
+                  </button>
                 </li>
               </ul>
             </div>

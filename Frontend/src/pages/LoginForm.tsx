@@ -1,30 +1,33 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import loginImage from "../assets/loginimage.png";
+import { Link, useNavigate } from "react-router-dom"; // ⬅️ add useNavigate
+import loginImage from "/src/assets/applicant.png";
 import "../styles/LoginForm.css";
-
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // ⬅️ hook
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Logging in with:", { email, password });
+
+    // Simulate login success then navigate to Job Board
+    navigate("/jobs");
   };
 
   return (
     <div className="background">
       <div className="container-wrapper">
         <div className="form-container">
-          <div className="form-box"> 
+          <div className="form-box">
             <div className="form-header">
               <h2>Log In</h2>
               <p>Welcome back! Please enter your details</p>
             </div>
 
             <form onSubmit={handleSubmit} className="login-form">
-              <div className="input-field">
+              <div className="input-field text-black">
                 <label>EMAIL</label>
                 <input
                   type="email"
@@ -35,7 +38,7 @@ const LoginForm: React.FC = () => {
                 />
               </div>
 
-              <div className="input-field">
+              <div className="input-field text-black">
                 <label>PASSWORD</label>
                 <input
                   type="password"
@@ -61,12 +64,11 @@ const LoginForm: React.FC = () => {
           </div>
 
           <div className="illustration-box">
-          <img
+            <img
               src={loginImage}
               alt="Login Graphics"
               style={{ width: "100%", height: "auto", objectFit: "contain" }}
-          />
-
+            />
           </div>
         </div>
       </div>

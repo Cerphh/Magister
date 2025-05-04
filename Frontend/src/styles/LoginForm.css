@@ -57,6 +57,7 @@
   
   .input-field {
     margin-bottom: 30px;
+    
   }
   
   .input-field label {
@@ -79,7 +80,7 @@
   
   
   .input-field input::placeholder {
-    color: #52616B;
+    color: gray;
     opacity: 1; 
   }
   

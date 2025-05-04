@@ -44,7 +44,7 @@ const SignUpForm = () => {
     setError('');
     console.log('Form submitted:', formData);
 
-    navigate('/jobs');
+    navigate('/login');
   };
 
   return (
@@ -62,7 +62,7 @@ const SignUpForm = () => {
         </div>
 
         {/* Right Side - Form */}
-        <div className="w-full md:w-[50%] bg-[#205295] flex items-center justify-center p-12 text-white flex-col">
+        <div className="w-full md:w-[50%] bg-[#2C74B3] flex items-center justify-center p-12 text-white flex-col">
   <p className="text-base uppercase tracking-wide text-white">Start for free</p>
   <h2 className="text-4xl font-bold mb-10 text-white">Create a new account</h2>
 
