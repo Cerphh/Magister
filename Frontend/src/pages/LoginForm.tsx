@@ -21,7 +21,7 @@ const LoginForm: React.FC = () => {
       <div className="container-wrapper">
         <div className="form-container">
           <div className="form-box">
-            <div className="form-header">
+            <div className="form-header font-extrabold ">
               <h2>Log In</h2>
               <p>Welcome back! Please enter your details</p>
             </div>
