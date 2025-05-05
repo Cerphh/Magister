@@ -1,9 +1,21 @@
 const Job = require("../models/jobModel");
+const JobApplication = require("../models/jobApplicationModel");
+const path = require("path");
+const fs = require("fs");
 
 class JobController {
   // Create a new job
   static async createJob(req, res) {
-    const { title, institution, location, applicationDeadline, category, description, institutionType } = req.body;
+    const {
+      title,
+      institution,
+      location,
+      applicationDeadline,
+      category,
+      description,
+      institutionType,
+      companyId,
+    } = req.body;
 
     try {
       const jobData = {
@@ -14,6 +26,7 @@ class JobController {
         category,
         description,
         institutionType,
+        companyId,
         datePosted: new Date(),
       };
 
@@ -24,7 +37,7 @@ class JobController {
     }
   }
 
-  // Search jobs with filters
+  // Search jobs with filters (uses body, not params)
   static async searchJobs(req, res) {
     const { title, location, institutionType, date } = req.body;
 
@@ -34,6 +47,73 @@ class JobController {
       res.status(200).json({ jobs });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  }
+
+  // Apply to a job with resume upload
+  static async applyToJob(req, res) {
+    try {
+      const { jobId, applicantId, message } = req.body;
+
+      if (!req.file || !jobId || !applicantId) {
+        return res.status(400).json({ error: "Missing required fields or resume file." });
+      }
+
+      const file = req.file;
+
+      const resumeMetadata = {
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        mimetype: file.mimetype,
+        size: file.size,
+      };
+
+      const applicationData = {
+        jobId,
+        applicantId,
+        resume: resumeMetadata,
+        message: message || "",
+        status: "Pending",
+        appliedAt: new Date(),
+      };
+
+      const applicationId = await JobApplication.createApplication(applicationData);
+      res.status(201).json({ message: "Application submitted", applicationId });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Get all applications by companyId
+  static async getApplicationsByCompany(req, res) {
+    const { companyId } = req.body;
+
+    if (!companyId) {
+      return res.status(400).json({ error: "Missing companyId" });
+    }
+
+    try {
+      const applications = await JobApplication.getApplicationsByCompany(companyId);
+      res.status(200).json({ applications });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Update application status
+  static async updateApplicationStatus(req, res) {
+    const { applicationId, status } = req.body;
+
+    if (!applicationId || !status) {
+      return res.status(400).json({ error: "applicationId and status are required" });
+    }
+
+    try {
+      await JobApplication.updateStatus(applicationId, status);
+      res.status(200).json({ message: "Application status updated" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   }
 }
