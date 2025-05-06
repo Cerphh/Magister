@@ -14,13 +14,11 @@ const useLogin = () => {
     setError(null);
 
     try {
-      // Step 1: Firebase Auth login
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const token = await user.getIdToken();
 
-      // Step 2: Fetch additional user data from Firestore
-      const userDocRef = doc(db, "users", user.uid); // assumes Firestore doc ID = user UID
+      const userDocRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userDocRef);
 
       if (!userSnapshot.exists()) {
@@ -28,8 +26,6 @@ const useLogin = () => {
       }
 
       const { displayName, role } = userSnapshot.data();
-
-      // Step 3: Store in localStorage
       const userData = {
         uid: user.uid,
         email: user.email,
@@ -40,7 +36,6 @@ const useLogin = () => {
 
       localStorage.setItem("user", JSON.stringify(userData));
 
-      // Step 4: Redirect
       navigate("/jobs");
     } catch (err: any) {
       setError(err.message);

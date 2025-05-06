@@ -22,9 +22,9 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); // ✅ Sign out from Firebase
-      localStorage.removeItem('user'); // ✅ Clear localStorage
-      navigate('/login'); // ✅ Redirect to login
+      await signOut(auth);
+      localStorage.removeItem('user');
+      navigate('/login');
     } catch (err) {
       console.error('Logout error:', err);
     }

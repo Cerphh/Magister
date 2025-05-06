@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import loginImage from "/src/assets/applicant.png";
 import "../styles/LoginForm.css";
-import useLogin from "../hooks/useLogin"; // ✅ Import custom hook
+import useLogin from "../hooks/useLogin";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +11,7 @@ const LoginForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, password); // ✅ Use hook logic
+    login(email, password);
   };
 
   return (
