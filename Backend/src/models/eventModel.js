@@ -2,8 +2,8 @@ const { db } = require("../config/firebase");
 const admin = require("firebase-admin");
 
 class Event {
-  static async createEvent(eventData) {
-    const ref = db.collection("events").doc();
+  static async createPendingEvent(eventData) {
+    const ref = db.collection("pending_events").doc();
     await ref.set(eventData);
     return ref.id;
   }
@@ -17,34 +17,28 @@ class Event {
     const eventRef = db.collection("events").doc(eventId);
     const eventDoc = await eventRef.get();
 
-    if (!eventDoc.exists) {
-      throw new Error("Event not found");
-    }
+    if (!eventDoc.exists) throw new Error("Event not found");
 
     const userData = { name, email, userId };
 
-    // Add to the event's attendees array
     await eventRef.update({
       attendees: admin.firestore.FieldValue.arrayUnion(userData),
     });
 
-    // Optional subcollection for record-keeping
     await eventRef.collection("registrations").add({
       ...userData,
-      registeredAt: new Date()
+      registeredAt: new Date(),
     });
 
-    // Global event registration tracking
     await db.collection("event_registrations").add({
       userId,
       eventId,
-      registeredAt: new Date()
+      registeredAt: new Date(),
     });
   }
 
   static async filterEvents(filters = {}) {
     let query = db.collection("events");
-
     if (filters.title) query = query.where("title", "==", filters.title);
     if (filters.location) query = query.where("location", "==", filters.location);
     if (filters.organizer) query = query.where("organizer", "==", filters.organizer);

@@ -1,7 +1,6 @@
 const Event = require("../models/eventModel");
 
 class EventController {
-  // Create a new event (admin or trusted users)
   static async createEvent(req, res) {
     const {
       title,
@@ -24,14 +23,13 @@ class EventController {
         createdAt: new Date(),
       };
 
-      const eventId = await Event.createEvent(eventData);
-      res.status(201).json({ message: "Event created", eventId });
+      const eventId = await Event.createPendingEvent(eventData);
+      res.status(201).json({ message: "Event submitted for review", eventId });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   }
 
-  // Get all events
   static async getEvents(req, res) {
     try {
       const events = await Event.getAllEvents();
@@ -41,7 +39,6 @@ class EventController {
     }
   }
 
-  // Filter events
   static async filterEvents(req, res) {
     const filters = req.body;
 
@@ -53,7 +50,6 @@ class EventController {
     }
   }
 
-  // Register a user for an event
   static async registerForEvent(req, res) {
     const { eventId, name, email, userId } = req.body;
 

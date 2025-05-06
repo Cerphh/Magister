@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 class JobController {
-  // Create a new job
+  // Create a new job (goes to pending_jobs)
   static async createJob(req, res) {
     const {
       title,
@@ -30,14 +30,13 @@ class JobController {
         datePosted: new Date(),
       };
 
-      const jobId = await Job.createJob(jobData);
-      res.status(201).json({ message: "Job posted successfully", jobId });
+      const jobId = await Job.createPendingJob(jobData);
+      res.status(201).json({ message: "Job submitted for review", jobId });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   }
 
-  // Search jobs with filters (uses body, not params)
   static async searchJobs(req, res) {
     const { title, location, institutionType, date } = req.body;
 
@@ -50,7 +49,6 @@ class JobController {
     }
   }
 
-  // Apply to a job with resume upload
   static async applyToJob(req, res) {
     try {
       const { jobId, applicantId, message } = req.body;
@@ -85,7 +83,6 @@ class JobController {
     }
   }
 
-  // Get all applications by companyId
   static async getApplicationsByCompany(req, res) {
     const { companyId } = req.body;
 
@@ -101,7 +98,6 @@ class JobController {
     }
   }
 
-  // Update application status
   static async updateApplicationStatus(req, res) {
     const { applicationId, status } = req.body;
 
