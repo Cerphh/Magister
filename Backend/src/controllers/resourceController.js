@@ -23,8 +23,8 @@ class ResourceController {
         uploadDate: new Date(),
       };
 
-      const id = await Resource.saveMetadata(metadata);
-      res.status(201).json({ message: "File uploaded", id, metadata });
+      const id = await Resource.savePendingMetadata(metadata);
+      res.status(201).json({ message: "File submitted for review", id, metadata });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

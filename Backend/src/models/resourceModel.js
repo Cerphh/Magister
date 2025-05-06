@@ -1,8 +1,8 @@
 const { db } = require("../config/firebase");
 
 class Resource {
-  static async saveMetadata(metadata) {
-    const ref = db.collection("resources").doc();
+  static async savePendingMetadata(metadata) {
+    const ref = db.collection("pending_resources").doc();
     await ref.set(metadata);
     return ref.id;
   }
@@ -14,7 +14,6 @@ class Resource {
       .get();
 
     if (snapshot.empty) throw new Error("File metadata not found in database.");
-
     return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
   }
 
@@ -25,7 +24,6 @@ class Resource {
 
   static async getFiltered(filters = {}) {
     let query = db.collection("resources");
-
     if (filters.subject) query = query.where("subject", "==", filters.subject);
     if (filters.level) query = query.where("level", "==", filters.level);
     if (filters.fileType) query = query.where("fileType", "==", filters.fileType);

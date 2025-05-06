@@ -1,9 +1,10 @@
 const { db } = require("../config/firebase");
 
 class Job {
-  static async createJob(jobData) {
+  // Save to pending collection
+  static async createPendingJob(jobData) {
     try {
-      const jobRef = db.collection("jobs").doc();
+      const jobRef = db.collection("pending_jobs").doc();
       await jobRef.set(jobData);
       return jobRef.id;
     } catch (error) {
@@ -15,24 +16,16 @@ class Job {
     try {
       let query = db.collection("jobs");
 
-      // Apply filters if provided
-      if (filters.title) {
-        query = query.where("title", "==", filters.title);
-      }
-      if (filters.location) {
-        query = query.where("location", "==", filters.location);
-      }
-      if (filters.institutionType) {
-        query = query.where("institutionType", "==", filters.institutionType);
-      }
+      if (filters.title) query = query.where("title", "==", filters.title);
+      if (filters.location) query = query.where("location", "==", filters.location);
+      if (filters.institutionType) query = query.where("institutionType", "==", filters.institutionType);
       if (filters.date) {
         const date = new Date(filters.date);
         query = query.where("datePosted", ">=", date);
       }
 
       const snapshot = await query.get();
-      const jobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      return jobs;
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
       throw new Error("Error fetching jobs: " + error.message);
     }
