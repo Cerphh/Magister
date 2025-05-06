@@ -124,18 +124,6 @@ const SignUpForm = () => {
             </div>
 
             <div>
-              <label className="block text-base mb-2">Username</label>
-              <input
-                type="text"
-                name="username"
-                placeholder="juandelacruz"
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full p-2 rounded-xl bg-white text-black text-md"
-              />
-            </div>
-
-            <div>
               <label className="block text-base mb-2">Password</label>
               <input
                 type="password"
