@@ -11,7 +11,6 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Detect login status from localStorage
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
   }, []);
@@ -39,6 +38,7 @@ const Navbar = () => {
 
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
   const displayName = userData?.displayName || "User";
+  const userType = userData?.role || "";
 
   return (
     <nav className="w-full bg-[#0A2647] px-6 py-1 flex items-center justify-between shadow-md">
@@ -54,9 +54,7 @@ const Navbar = () => {
         <Link to="/resources" className="hover:underline underline-offset-4">Resource Hub</Link>
         <Link to="/events" className="hover:underline underline-offset-4">Events</Link>
 
-        {/* Conditional Rendering */}
         {isLoggedIn ? (
-          // Logged in: show user dropdown
           <div className="relative" ref={dropdownRef}>
             <div
               className="flex items-center gap-1 cursor-pointer hover:opacity-90"
@@ -69,6 +67,17 @@ const Navbar = () => {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-gray-800">
                 <ul className="py-2 text-sm">
+                  {userType === "applicant" && (
+                    <li>
+                      <Link
+                        to="/myjobs"
+                        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        My Jobs
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <Link
                       to="/profile"
@@ -109,7 +118,6 @@ const Navbar = () => {
             )}
           </div>
         ) : (
-          // Not logged in: show Sign Up and Log In
           <div className="flex gap-4">
             <button
               onClick={() => navigate("/signup")}

@@ -7,6 +7,7 @@ import { UserProfile } from './pages/UserProfile';
 import Events from './pages/Events';
 import LoginForm from './pages/LoginForm';
 import LandingPage from './pages/LandingPage';
+import MyJobs from './pages/MyJobs'; // 👈 ADD THIS
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/jobs" element={<JobListing />} />
           <Route path="/resources" element={<ResourceHub />} />
           <Route path="/profile" element={<UserProfile userType="applicant" />} />
+          <Route path="/myjobs" element={<MyJobs />} /> {/* ✅ ADD THIS */}
         </Routes>
       </div>
     </Router>
