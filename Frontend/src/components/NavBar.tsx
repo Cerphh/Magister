@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from "../../config/firebase";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -18,10 +20,19 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // Placeholder logic for actual logout (e.g., clearing tokens)
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // ✅ Sign out from Firebase
+      localStorage.removeItem('user'); // ✅ Clear localStorage
+      navigate('/login'); // ✅ Redirect to login
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
+
+  // Optional: load user name from localStorage
+  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  const displayName = userData?.displayName || 'User';
 
   return (
     <nav className="w-full bg-[#0A2647] px-6 py-1 flex items-center justify-between shadow-md">
@@ -42,7 +53,7 @@ const Navbar = () => {
             className="flex items-center gap-1 cursor-pointer hover:opacity-90"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
-            <span>Juan Dela Cruz</span>
+            <span>{displayName}</span>
             <ChevronDown size={16} />
           </div>
 

@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // ⬅️ add useNavigate
+import { Link } from "react-router-dom";
 import loginImage from "/src/assets/applicant.png";
 import "../styles/LoginForm.css";
+import useLogin from "../hooks/useLogin"; // ✅ Import custom hook
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // ⬅️ hook
+  const { login, loading, error } = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in with:", { email, password });
-
-    // Simulate login success then navigate to Job Board
-    navigate("/jobs");
+    login(email, password); // ✅ Use hook logic
   };
 
   return (
@@ -53,7 +51,10 @@ const LoginForm: React.FC = () => {
                 <Link to="/forgot-password">Forgot password?</Link>
               </div>
 
-              <button type="submit" className="submit-btn">Login</button>
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </button>
+              {error && <p className="error-message">{error}</p>}
             </form>
 
             <div className="signup-footer">
