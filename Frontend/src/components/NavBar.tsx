@@ -1,44 +1,44 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { Bell, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { auth } from "../../config/firebase";
+import { auth } from '../../config/firebase';
+import { useNotifications } from '../hooks/useNotifications'; // adjust path if needed
+import { useClickOutside } from '../hooks/useClickOutside'; // or correct relative path
+
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
+  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  const displayName = userData?.displayName || 'User';
+  const userType = userData?.role || '';
+
+  const { notifications, loading } = useNotifications();
+
   useEffect(() => {
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem('user');
     setIsLoggedIn(!!user);
   }, []);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
+  useClickOutside(notifRef, () => setIsNotifOpen(false));
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      localStorage.removeItem("user");
+      localStorage.removeItem('user');
       setIsLoggedIn(false);
-      navigate("/login");
+      navigate('/login');
     } catch (err) {
-      console.error("Logout error:", err);
+      console.error('Logout error:', err);
     }
   };
-
-  const userData = JSON.parse(localStorage.getItem("user") || "{}");
-  const displayName = userData?.displayName || "User";
-  const userType = userData?.role || "";
 
   return (
     <nav className="w-full bg-[#0A2647] px-6 py-1 flex items-center justify-between shadow-md">
@@ -55,78 +55,118 @@ const Navbar = () => {
         <Link to="/events" className="hover:underline underline-offset-4">Events</Link>
 
         {isLoggedIn ? (
-          <div className="relative" ref={dropdownRef}>
-            <div
-              className="flex items-center gap-1 cursor-pointer hover:opacity-90"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <span>{displayName}</span>
-              <ChevronDown size={16} />
-            </div>
+          <>
+            
 
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-gray-800">
-                <ul className="py-2 text-sm">
-                  {userType === "applicant" && (
+            {/* 👤 User Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <div
+                className="flex items-center gap-1 cursor-pointer hover:opacity-90"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <span>{displayName}</span>
+                <ChevronDown size={16} />
+              </div>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-gray-800">
+                  <ul className="py-2 text-sm">
+                    {userType === 'applicant' && (
+                      <li>
+                        <Link
+                          to="/myjobs"
+                          className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => setIsDropdownOpen(false)}
+                        >
+                          My Jobs
+                        </Link>
+                      </li>
+                    )}
                     <li>
                       <Link
-                        to="/myjobs"
+                        to="/profile"
                         className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        My Jobs
+                        Profile
                       </Link>
                     </li>
+                    <li>
+                      <Link
+                        to="/settings"
+                        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        Settings
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/help"
+                        className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        Help
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* 🔔 Notification Dropdown */}
+            <div className="relative mr-2" ref={notifRef}>
+              <button
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className="text-white relative"
+                aria-label="Toggle notifications"
+              >
+                <Bell size={20} />
+                {notifications.filter(n => n.role === userType).length > 0 && (
+                  <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full" />
+                )}
+              </button>
+
+              {isNotifOpen && (
+                <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg z-50 text-sm text-gray-800">
+                  {loading ? (
+                    <div className="p-4 text-center text-gray-500">Loading...</div>
+                  ) : notifications.filter(n => n.role === userType).length === 0 ? (
+                    <div className="p-4 text-center">No new notifications</div>
+                  ) : (
+                    <ul>
+                      {notifications
+                        .filter(n => n.role === userType)
+                        .map((notif, idx) => (
+                          <li key={idx} className="px-4 py-2 border-b hover:bg-gray-100">
+                            <div className="font-medium">{notif.message}</div>
+                            <div className="text-xs text-gray-500">{notif.timestamp}</div>
+                          </li>
+                        ))}
+                    </ul>
                   )}
-                  <li>
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      Settings
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/help"
-                      className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      Help
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          </>
         ) : (
           <div className="flex gap-4">
             <button
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate('/signup')}
               className="bg-white text-[#0A2647] px-4 py-1 rounded hover:bg-gray-100"
             >
               Sign Up
             </button>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate('/login')}
               className="bg-[#144272] text-white px-4 py-1 rounded hover:bg-[#0d3b66]"
             >
               Log In
