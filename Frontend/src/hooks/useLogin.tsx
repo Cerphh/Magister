@@ -36,9 +36,17 @@ const useLogin = () => {
 
       localStorage.setItem("user", JSON.stringify(userData));
 
-      navigate("/jobs");
+      // ✅ Redirect based on role
+      if (role === "employer") {
+        navigate("/employer-dashboard");
+      } else {
+        navigate("/profile");
+      }
+
+      return userData; // Optional: return user data
     } catch (err: any) {
       setError(err.message);
+      return null;
     } finally {
       setLoading(false);
     }

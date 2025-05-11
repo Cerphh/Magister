@@ -1,28 +1,30 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import SignUpForm from './pages/Signup';
-import RolePage from './pages/RolePage';
-import JobListing from './pages/JobListing';
-import ResourceHub from './pages/ResourceHub';
-import { UserProfile } from './pages/UserProfile';
+import EmployerDashboard from './pages/EmployerDashboard';
 import Events from './pages/Events';
-import LoginForm from './pages/LoginForm';
+import JobListing from './pages/JobListing';
 import LandingPage from './pages/LandingPage';
-import MyJobs from './pages/MyJobs'; // 👈 ADD THIS
+import LoginForm from './pages/LoginForm';
+import MyJobs from './pages/MyJobs';
+import ResourceHub from './pages/ResourceHub';
+import RolePage from './pages/RolePage';
+import SignUpForm from './pages/Signup';
+import { UserProfile } from './pages/UserProfile';
 
 const App = () => {
   return (
     <Router>
-      <div className="min-screen">
+      <div className="min-h-screen">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/roles" element={<RolePage />} />
           <Route path="/signup" element={<SignUpForm />} />
-          <Route path="/events" element={<Events />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/events" element={<Events />} />
           <Route path="/jobs" element={<JobListing />} />
+          <Route path="/myjobs" element={<MyJobs />} />
           <Route path="/resources" element={<ResourceHub />} />
           <Route path="/profile" element={<UserProfile userType="applicant" />} />
-          <Route path="/myjobs" element={<MyJobs />} /> {/* ✅ ADD THIS */}
+          <Route path="/employer-dashboard" element={<EmployerDashboard />} />
         </Routes>
       </div>
     </Router>
