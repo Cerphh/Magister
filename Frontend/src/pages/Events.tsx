@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/NavBar';
 import { Search, Calendar, MapPin, X } from 'lucide-react';
 
@@ -10,8 +10,7 @@ interface Event {
   image: string;
 }
 
-
-const events = [
+const allEvents: Event[] = [
   {
     title: 'Annual Education Conference',
     date: 'June 05, 2025',
@@ -37,6 +36,25 @@ const events = [
 
 const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [filter, setFilter] = useState<string>('All');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(allEvents);
+
+  useEffect(() => {
+    let updatedEvents = allEvents;
+
+    if (filter !== 'All') {
+      updatedEvents = updatedEvents.filter(event => event.type === filter);
+    }
+
+    if (searchTerm.trim() !== '') {
+      updatedEvents = updatedEvents.filter(event =>
+        event.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredEvents(updatedEvents);
+  }, [filter, searchTerm]);
 
   const openModal = (event: Event) => {
     setSelectedEvent(event);
@@ -55,20 +73,25 @@ const Events = () => {
           <h1 className="text-2xl font-semibold text-[#082C57]">All Events</h1>
 
           <div className="flex flex-wrap items-center gap-3">
-            {['All', 'Job Fair', 'Webinar', 'Seminar'].map((filter, idx) => (
+            {['All', 'Job Fair', 'Webinar', 'Seminar'].map((f, idx) => (
               <button
                 key={idx}
-                className={`px-4 py-1.5 border rounded-full text-sm font-medium ${
-                  filter === 'All' ? 'bg-[#082C57] text-white' : 'text-[#082C57] border-[#082C57]'
+                onClick={() => setFilter(f)}
+                className={`px-4 py-1.5 border rounded-full text-sm font-medium transition-colors ${
+                  f === filter
+                    ? 'bg-[#082C57] text-white'
+                    : 'text-[#082C57] border-[#082C57]'
                 }`}
               >
-                {filter}
+                {f}
               </button>
             ))}
 
             <div className="flex items-center border rounded-full px-4 py-1.5 bg-white">
               <input
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search"
                 className="outline-none border-none text-sm bg-transparent placeholder:text-[#6B7280]"
               />
@@ -78,7 +101,7 @@ const Events = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {events.map((event, idx) => (
+          {filteredEvents.map((event, idx) => (
             <div
               key={idx}
               className="bg-white rounded-xl overflow-hidden shadow-sm border hover:shadow-md transition-shadow"
@@ -150,19 +173,17 @@ const Events = () => {
                 {selectedEvent.type}
               </div>
             </div>
-            {/* Register Button */}
-      <div className="text-right">
-        <button
-          onClick={() => alert('Register button clicked!')}
-          className="mt-2 px-4 py-2 bg-[#144272]  text-white text-sm rounded hover:bg-[#2C74B3] transition-colors"
-        >
-          Register
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+            <div className="text-right">
+              <button
+                onClick={() => alert('Register button clicked!')}
+                className="mt-2 px-4 py-2 bg-[#144272] text-white text-sm rounded hover:bg-[#2C74B3] transition-colors"
+              >
+                Register
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
