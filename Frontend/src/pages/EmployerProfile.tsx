@@ -2,17 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/NavBar';
 import EditProfileModal from '../components/EditProfileModal';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
-import type { ProfileData, ApplicantProfileData } from '../types/profile';
+import type { ProfileData, EmployerProfileData } from '../types/profile';
 
 const LOCAL_STORAGE_KEY = 'user';
 
-interface UserProfileProps {
-  userType: string;
-}
-
-const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
+const EmployerProfile: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState<ApplicantProfileData | null>(null);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { updateProfile, loading: updateLoading, error } = useUpdateProfile();
@@ -21,26 +17,26 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
     const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (storedData) {
       const parsed = JSON.parse(storedData);
-      const formattedData: ApplicantProfileData = {
+      const formattedData: EmployerProfileData = {
         uid: parsed.uid,
         displayName: parsed.displayName || 'No Name',
         location: parsed.location || 'No Location',
-        role: 'applicant',
-        subjects: parsed.subjects || [],
-        teachingLevel: parsed.teachingLevel || [],
+        role: 'employer',
+        companyName: parsed.companyName || 'No Company',
+        companyType: parsed.companyType || 'No Type',
         about: parsed.about || 'No Information',
       };
       setProfileData(formattedData);
     }
     setLoading(false);
-  }, [userType]);
+  }, []);
 
   const handleSave = async (updated: ProfileData) => {
-    if (profileData?.role === 'applicant' && updated.role === 'applicant') {
+    if (profileData && updated.role === 'employer') {
       try {
         const response = await updateProfile({ ...updated, uid: profileData.uid });
         if (response) {
-          const updatedUserData: ApplicantProfileData = { ...profileData, ...updated };
+          const updatedUserData = { ...profileData, ...updated };
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedUserData));
           setProfileData(updatedUserData);
           setIsModalOpen(false);
@@ -55,8 +51,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
     return <div className="text-center py-12 text-gray-500">Loading profile...</div>;
   }
 
-  if (!profileData || profileData.role !== 'applicant') {
-    return <div className="text-center py-12 text-red-500">No applicant profile data found.</div>;
+  if (!profileData || profileData.role !== 'employer') {
+    return <div className="text-center py-12 text-red-500">No employer profile data found.</div>;
   }
 
   return (
@@ -80,39 +76,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
           <hr className="my-6 border-gray-200" />
 
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-[#082C57] mb-2">Subjects of Expertise</h2>
-            <div className="flex flex-wrap gap-2">
-              {profileData.subjects && profileData.subjects.length > 0 ? (
-                profileData.subjects.map((subject) => (
-                  <span
-                    key={subject}
-                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {subject}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-500">No subjects listed</span>
-              )}
-            </div>
+            <h2 className="text-lg font-semibold text-[#082C57] mb-2">Company Name</h2>
+            <p className="text-gray-700 text-sm">{profileData.companyName}</p>
           </div>
 
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-[#082C57] mb-2">Teaching Level</h2>
-            <div className="flex flex-wrap gap-2">
-              {profileData.teachingLevel && profileData.teachingLevel.length > 0 ? (
-                profileData.teachingLevel.map((level) => (
-                  <span
-                    key={level}
-                    className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {level}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-500">No teaching level specified</span>
-              )}
-            </div>
+            <h2 className="text-lg font-semibold text-[#082C57] mb-2">Company Type</h2>
+            <p className="text-gray-700 text-sm">{profileData.companyType}</p>
           </div>
 
           <div>
@@ -145,4 +115,4 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
   );
 };
 
-export default UserProfile;
+export default EmployerProfile;

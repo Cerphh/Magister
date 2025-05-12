@@ -17,7 +17,7 @@ const Navbar = () => {
 
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
   const displayName = userData?.displayName || 'User';
-  const userType = userData?.role || '';
+  const userType = userData?.userType || '';
 
   const { notifications, loading } = useNotifications();
 
@@ -89,9 +89,22 @@ const Navbar = () => {
               <div className="relative mt-2 w-44 bg-white border border-gray-200 rounded-md shadow-lg z-50 text-gray-800 md:absolute md:top-full md:left-0">
                 <ul className="py-2 text-sm">
                   <li>
-                    <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setIsDropdownOpen(false)}>
-                      Profile
-                    </Link>
+                    <li>
+                      <button
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          if (userType === 'employer') {
+                            navigate('/employer-profile');
+                          } else {
+                            navigate('/profile');
+                          }
+                          }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                          >
+                        Profile
+                        </button>
+                  </li>
+
                   </li>
                   <li>
                     <Link to="/settings" className="block px-4 py-2 hover:bg-gray-100" onClick={() => setIsDropdownOpen(false)}>

@@ -4,32 +4,37 @@ interface ProfileData {
   uid?: string;
   displayName: string;
   location: string;
-  role: string;
-  subjects: string[];
-  teachingLevel: string[];
+  role: string; // 'applicant' or 'employer'
+  subjects?: string[];
+  teachingLevel?: string[];
   about: string;
+  companyName?: string;
+  companyType?: string;
 }
 
 interface Props {
   profileData: ProfileData;
   onClose: () => void;
-  onSave: (updatedData: ProfileData) => void;
+  onSave: (updatedData: ProfileData) => Promise<void>; // <- fix here
 }
+
 
 const allSubjects = ['Math', 'Science', 'English', 'History', 'PE', 'Music', 'Art', 'ICT', 'Filipino'];
 const allTeachingLevels = ['Preschool', 'Elementary', 'High School', 'College', 'Vocational', 'Graduate'];
 
 const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProfileData>({
     ...profileData,
+    subjects: profileData.subjects || [],
+    teachingLevel: profileData.teachingLevel || [],
   });
 
   const toggleItem = (key: 'subjects' | 'teachingLevel', item: string) => {
     setFormData(prev => ({
       ...prev,
-      [key]: prev[key].includes(item)
-        ? prev[key].filter((i: string) => i !== item)
-        : [...prev[key], item],
+      [key]: prev[key]?.includes(item)
+        ? prev[key]!.filter((i: string) => i !== item)
+        : [...(prev[key] || []), item],
     }));
   };
 
@@ -67,35 +72,63 @@ const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => 
             rows={3}
           />
 
-          <div>
-            <label className="text-sm text-[#082C57]">Subjects</label>
-            <div className="flex gap-3 mt-2 flex-wrap">
-              {allSubjects.map((subject) => (
-                <button
-                  key={subject}
-                  onClick={() => toggleItem('subjects', subject)}
-                  className={`border rounded px-3 py-2 text-sm ${formData.subjects.includes(subject) ? 'bg-blue-600 text-white' : ''}`}
-                >
-                  {subject}
-                </button>
-              ))}
-            </div>
-          </div>
+          {formData.role === 'applicant' && (
+            <>
+              <div>
+                <label className="text-sm text-[#082C57]">Subjects</label>
+                <div className="flex gap-3 mt-2 flex-wrap">
+                  {allSubjects.map((subject) => (
+                    <button
+                      key={subject}
+                      onClick={() => toggleItem('subjects', subject)}
+                      className={`border rounded px-3 py-2 text-sm ${
+                        formData.subjects?.includes(subject) ? 'bg-blue-600 text-white' : ''
+                      }`}
+                    >
+                      {subject}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div>
-            <label className="text-sm text-[#082C57]">Teaching Level</label>
-            <div className="flex gap-3 mt-2 flex-wrap">
-              {allTeachingLevels.map((level) => (
-                <button
-                  key={level}
-                  onClick={() => toggleItem('teachingLevel', level)}
-                  className={`border rounded px-3 py-2 text-sm ${formData.teachingLevel.includes(level) ? 'bg-green-600 text-white' : ''}`}
-                >
-                  {level}
-                </button>
-              ))}
-            </div>
-          </div>
+              <div>
+                <label className="text-sm text-[#082C57]">Teaching Level</label>
+                <div className="flex gap-3 mt-2 flex-wrap">
+                  {allTeachingLevels.map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => toggleItem('teachingLevel', level)}
+                      className={`border rounded px-3 py-2 text-sm ${
+                        formData.teachingLevel?.includes(level) ? 'bg-green-600 text-white' : ''
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {formData.role === 'employer' && (
+            <>
+              <input
+                type="text"
+                value={formData.companyName || ''}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="Company Name"
+                className="w-full border rounded px-3 py-2 text-sm"
+              />
+
+              <input
+                type="text"
+                value={formData.companyType || ''}
+                onChange={(e) => setFormData({ ...formData, companyType: e.target.value })}
+                placeholder="Company Type"
+                className="w-full border rounded px-3 py-2 text-sm"
+              />
+            </>
+          )}
 
           <div className="flex justify-end gap-3 mt-4">
             <button onClick={onClose} className="px-4 py-2 text-sm bg-gray-300 rounded text-black">Cancel</button>

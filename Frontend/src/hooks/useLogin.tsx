@@ -39,10 +39,12 @@ const useLogin = () => {
       localStorage.setItem("user", JSON.stringify(userData));
 
       // Navigate based on role
-      if (userData.role === "employer") {
+      if (userData.userType === "employer") {
         navigate("/employer-dashboard");
-      } else {
+      } else if (userData.userType === "applicant") {
         navigate("/profile");
+      } else if (userData.userType === "admin") {
+        navigate("/admin-dashboard");
       }
 
       return userData;

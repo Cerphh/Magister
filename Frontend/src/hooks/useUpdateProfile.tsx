@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-interface ProfileData {
-  displayName?: string;
-  location?: string;
-  role?: string;
-  subjects?: string[];
-  teachingLevel?: string[];
-  about?: string;
-  companyName?: string;
-  companyType?: string;
-}
+
+type ProfileData =
+  | {
+      uid?: string;
+      displayName?: string;
+      location?: string;
+      role: 'applicant';
+      subjects?: string[];
+      teachingLevel?: string[];
+      about?: string;
+    }
+  | {
+      uid?: string;
+      displayName?: string;
+      location?: string;
+      role: 'employer';
+      companyName?: string;
+      companyType?: string;
+      about?: string;
+    };
 
 export const useUpdateProfile = () => {
   const [loading, setLoading] = useState(false);
@@ -33,12 +43,12 @@ export const useUpdateProfile = () => {
         uid,
         displayName: data.displayName || '',
         location: data.location || '',
-        role: data.role || '',
-        subjects: data.subjects || [],
-        teachingLevel: data.teachingLevel || [],
+        role: data.role,
+        subjects: data.role === 'applicant' ? data.subjects || [] : [],
+        teachingLevel: data.role === 'applicant' ? data.teachingLevel || [] : [],
         about: data.about || '',
-        companyName: data.companyName || '',
-        companyType: data.companyType || '',
+        companyName: data.role === 'employer' ? data.companyName || '' : '',
+        companyType: data.role === 'employer' ? data.companyType || '' : '',
       };
 
       const filteredData = Object.fromEntries(

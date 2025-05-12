@@ -9,7 +9,9 @@ import ResourceHub from './pages/ResourceHub';
 import RolePage from './pages/RolePage';
 import SignUpForm from './pages/Signup';
 import AdminDashboard from './pages/AdminDashboard';
-import { UserProfile } from './pages/UserProfile';
+import UserProfile from './pages/UserProfile';
+import EmployerProfile from './pages/EmployerProfile';
+
 
 const App = () => {
   return (
@@ -24,7 +26,9 @@ const App = () => {
           <Route path="/jobs" element={<JobListing />} />
           <Route path="/myjobs" element={<MyJobs />} />
           <Route path="/resources" element={<ResourceHub />} />
+          <Route path="/employer-profile" element={<EmployerProfile/>} />
           <Route path="/profile" element={<UserProfile userType="applicant" />} />
+          
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
