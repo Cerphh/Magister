@@ -8,6 +8,7 @@ import MyJobs from './pages/MyJobs';
 import ResourceHub from './pages/ResourceHub';
 import RolePage from './pages/RolePage';
 import SignUpForm from './pages/Signup';
+import AdminDashboard from './pages/AdminDashboard';
 import { UserProfile } from './pages/UserProfile';
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/resources" element={<ResourceHub />} />
           <Route path="/profile" element={<UserProfile userType="applicant" />} />
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
       </div>
     </Router>
