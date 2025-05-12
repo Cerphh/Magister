@@ -15,8 +15,8 @@ class ResourceController {
         path: req.file.path,
         mimeType: req.file.mimetype,
         size: req.file.size,
-        subject: req.body.subject || "General",
-        level: req.body.level || "Any",
+        subject: (req.body.subject || "General").toLowerCase(),
+        level: (req.body.level || "Any").toLowerCase(),
         displayName: req.body.displayName || req.file.originalname,
         description: req.body.description || "",
         fileType: path.extname(req.file.originalname).toLowerCase(),
@@ -60,7 +60,13 @@ class ResourceController {
     const { subject, level, fileType, displayName } = req.body;
 
     try {
-      const filters = { subject, level, fileType, displayName };
+      const filters = {
+        subject: subject?.toLowerCase() || '',
+        level: level?.toLowerCase() || '',
+        fileType: fileType?.toLowerCase() || '',
+        displayName: displayName || '',
+      };
+
       const resources = await Resource.getFiltered(filters);
       res.status(200).json(resources);
     } catch (error) {
