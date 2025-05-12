@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
 interface ProfileData {
-  name: string;
+  uid?: string;
+  displayName: string;
   location: string;
   role: string;
   subjects: string[];
@@ -44,17 +45,9 @@ const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => 
         <div className="space-y-4">
           <input
             type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Name"
-            className="w-full border rounded px-3 py-2 text-sm"
-          />
-
-          <input
-            type="text"
-            value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            placeholder="Role"
+            value={formData.displayName}
+            onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+            placeholder="Display Name"
             className="w-full border rounded px-3 py-2 text-sm"
           />
 
@@ -66,19 +59,22 @@ const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => 
             className="w-full border rounded px-3 py-2 text-sm"
           />
 
-          {/* Subjects Multi-Select */}
+          <textarea
+            value={formData.about}
+            onChange={(e) => setFormData({ ...formData, about: e.target.value })}
+            placeholder="About you"
+            className="w-full border rounded px-3 py-2 text-sm"
+            rows={3}
+          />
+
           <div>
-            <label className="block font-medium text-sm mb-1">Subjects of Expertise</label>
-            <div className="flex flex-wrap gap-2">
-              {allSubjects.map(subject => (
+            <label className="text-sm text-[#082C57]">Subjects</label>
+            <div className="flex gap-3 mt-2 flex-wrap">
+              {allSubjects.map((subject) => (
                 <button
                   key={subject}
                   onClick={() => toggleItem('subjects', subject)}
-                  className={`px-3 py-1 rounded-full text-sm border ${
-                    formData.subjects.includes(subject)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                  className={`border rounded px-3 py-2 text-sm ${formData.subjects.includes(subject) ? 'bg-blue-600 text-white' : ''}`}
                 >
                   {subject}
                 </button>
@@ -86,19 +82,14 @@ const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => 
             </div>
           </div>
 
-          {/* Teaching Levels Multi-Select */}
           <div>
-            <label className="block font-medium text-sm mb-1">Teaching Levels</label>
-            <div className="flex flex-wrap gap-2">
-              {allTeachingLevels.map(level => (
+            <label className="text-sm text-[#082C57]">Teaching Level</label>
+            <div className="flex gap-3 mt-2 flex-wrap">
+              {allTeachingLevels.map((level) => (
                 <button
                   key={level}
                   onClick={() => toggleItem('teachingLevel', level)}
-                  className={`px-3 py-1 rounded-full text-sm border ${
-                    formData.teachingLevel.includes(level)
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                  className={`border rounded px-3 py-2 text-sm ${formData.teachingLevel.includes(level) ? 'bg-green-600 text-white' : ''}`}
                 >
                   {level}
                 </button>
@@ -106,28 +97,10 @@ const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => 
             </div>
           </div>
 
-          <textarea
-            value={formData.about}
-            onChange={(e) => setFormData({ ...formData, about: e.target.value })}
-            rows={4}
-            placeholder="About"
-            className="w-full border rounded px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded"
-          >
-            Save
-          </button>
+          <div className="flex justify-end gap-3 mt-4">
+            <button onClick={onClose} className="px-4 py-2 text-sm bg-gray-300 rounded text-black">Cancel</button>
+            <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 rounded text-white">Save</button>
+          </div>
         </div>
       </div>
     </div>

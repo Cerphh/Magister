@@ -1,22 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useSignUp } from '../hooks/useSignup';
 
 const SignUpForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userType, setUserType] = useState<'applicant' | 'employer' | ''>('');
 
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false,
-  });
-
-  const [error, setError] = useState('');
+  const { formData, handleChange, handleSubmit, error } = useSignUp(userType);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -26,49 +17,9 @@ const SignUpForm = () => {
     }
   }, [location.search]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!formData.agreeToTerms) {
-      setError('You must agree to the Terms of Service.');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters.');
-      return;
-    }
-
-    setError('');
-
-    // Include userType when submitting
-    const fullFormData = {
-      ...formData,
-      userType,
-    };
-
-    console.log('Form submitted:', fullFormData);
-
-    navigate('/login');
-  };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#0A2647] p-6">
       <div className="flex w-full max-w-[1500px] max-h-[700px] rounded-[40px] overflow-hidden shadow-2xl bg-white">
-
         {/* Left Side - Illustration */}
         <div className="w-full md:w-2/3 bg-[#F0F5F9] p-10 flex items-center justify-center">
           <img
@@ -168,6 +119,7 @@ const SignUpForm = () => {
             <button
               type="submit"
               className="w-full bg-[#144272] hover:bg-[#0A2647] transition-colors py-2 rounded-xl font-semibold text-md"
+              disabled={!formData.agreeToTerms || formData.password !== formData.confirmPassword}
             >
               Sign Up
             </button>

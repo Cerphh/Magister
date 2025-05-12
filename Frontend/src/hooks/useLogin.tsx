@@ -1,8 +1,10 @@
+// useLogin.ts
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../config/firebase";
+import { UserData } from "../../types";
 
 const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -25,25 +27,25 @@ const useLogin = () => {
         throw new Error("User profile not found in Firestore.");
       }
 
-      const { displayName, role } = userSnapshot.data();
-      const userData = {
+      const firestoreData = userSnapshot.data();
+      const userData: UserData = {
+        ...firestoreData,
         uid: user.uid,
         email: user.email,
         token,
-        displayName,
-        role,
       };
 
+      // Save to localStorage
       localStorage.setItem("user", JSON.stringify(userData));
 
-      // ✅ Redirect based on role
-      if (role === "employer") {
+      // Navigate based on role
+      if (userData.role === "employer") {
         navigate("/employer-dashboard");
       } else {
         navigate("/profile");
       }
 
-      return userData; // Optional: return user data
+      return userData;
     } catch (err: any) {
       setError(err.message);
       return null;
