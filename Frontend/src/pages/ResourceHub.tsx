@@ -170,7 +170,7 @@ const ResourceHub = () => {
             <div className="mt-4 text-right">
               <button
                 onClick={() => alert('Download initiated')}
-                className="bg-[#205295] hover:bg-[#144272] text-white font-medium px-4 py-2 rounded"
+                className="bg-[#144272] hover:bg-[#2C74B3] text-white font-medium px-4 py-2 rounded"
               >
                 Download Resource
               </button>

@@ -154,7 +154,7 @@ const Events = () => {
       <div className="text-right">
         <button
           onClick={() => alert('Register button clicked!')}
-          className="mt-2 px-4 py-2 bg-[#205295] text-white text-sm rounded hover:bg-[#1a4174] transition-colors"
+          className="mt-2 px-4 py-2 bg-[#144272]  text-white text-sm rounded hover:bg-[#2C74B3] transition-colors"
         >
           Register
         </button>
