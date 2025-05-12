@@ -4,6 +4,25 @@ import Navbar from '../components/NavBar';
 
 const ResourceHub = () => {
   const [showModal, setShowModal] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+
+  const resources = [
+    {
+      title: 'Elementary Math Lesson Plan',
+      description: 'A comprehensive lesson plan for teaching elementary school math',
+    },
+    {
+      title: 'Science Experiment Guide',
+      description: 'Step-by-step instructions for safe and engaging science experiments.',
+    },
+    {
+      title: 'English Reading Materials',
+      description: 'Curated reading passages for grade school students with comprehension questions.',
+    },
+  ];
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen">
@@ -47,19 +66,20 @@ const ResourceHub = () => {
 
         {/* Resource Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((item) => (
+          {resources.map((item, idx) => (
             <div
-              key={item}
+              key={idx}
               className="bg-white border border-gray-300 rounded-xl p-4 shadow-sm flex flex-col justify-between h-40"
             >
               <div>
-                <h3 className="font-semibold text-lg mb-1">Elementary Math Lesson Plan</h3>
-                <p className="text-sm text-gray-600">
-                  A comprehensive lesson plan for teaching elementary school math
-                </p>
+                <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.description}</p>
               </div>
               <div className="flex items-center justify-between mt-4">
-                <span className="text-sm text-blue-600 hover:underline cursor-pointer">
+                <span
+                  className="text-sm text-blue-600 hover:underline cursor-pointer"
+                  onClick={() => setSelectedResource(item)}
+                >
                   See more...
                 </span>
                 <Download size={16} className="text-gray-500 cursor-pointer" />
@@ -69,7 +89,7 @@ const ResourceHub = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Share Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
           <div className="relative bg-white border border-gray-200 rounded-md shadow-lg w-full max-w-lg">
@@ -129,6 +149,31 @@ const ResourceHub = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* See More Modal */}
+      {selectedResource && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+          <div className="relative bg-white border border-gray-200 rounded-md shadow-lg w-full max-w-md p-6">
+            <button
+              onClick={() => setSelectedResource(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-semibold text-[#082C57] mb-2">{selectedResource.title}</h2>
+            <p className="text-sm text-gray-700">{selectedResource.description}</p>
+
+            <div className="mt-4 text-right">
+              <button
+                onClick={() => alert('Download initiated')}
+                className="bg-[#205295] hover:bg-[#144272] text-white font-medium px-4 py-2 rounded"
+              >
+                Download Resource
+              </button>
             </div>
           </div>
         </div>
