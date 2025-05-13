@@ -33,7 +33,7 @@ const EmployerDashboard: React.FC = () => {
             <h2 className="text-xl font-semibold mb-2">Recent</h2>
             <div className="flex space-x-6 border-b border-gray-200 pb-2">
               <button className="text-blue-900 font-semibold border-b-2 border-blue-900">Job Application</button>
-              <button className="text-gray-500">Events</button>
+              
             </div>
           </div>
 

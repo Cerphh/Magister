@@ -6,6 +6,7 @@ import { auth } from '../../config/firebase';
 import { useNotifications } from '../hooks/useNotifications';
 import { useClickOutside } from '../hooks/useClickOutside';
 
+
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -143,6 +144,7 @@ const Navbar = () => {
           <>
             <Link to="/jobs" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Job Board</Link>
             <Link to="/events" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Events</Link>
+            <Link to="/myjobs" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">My Jobs</Link>
           </>
         )}
         <Link to="/resources" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Resource Hub</Link>
