@@ -24,13 +24,27 @@ class Resource {
 
   static async getFiltered(filters = {}) {
     let query = db.collection("resources");
-    if (filters.subject) query = query.where("subject", "==", filters.subject);
-    if (filters.level) query = query.where("level", "==", filters.level);
-    if (filters.fileType) query = query.where("fileType", "==", filters.fileType);
-    if (filters.displayName) query = query.where("displayName", "==", filters.displayName);
+
+    if (filters.subject) query = query.where("subject", "==", filters.subject.toLowerCase());
+    if (filters.level) query = query.where("level", "==", filters.level.toLowerCase());
+    if (filters.fileType) query = query.where("fileType", "==", filters.fileType.toLowerCase());
 
     const snapshot = await query.get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const results = [];
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+
+      const displayNameMatch = filters.displayName
+        ? data.displayName.toLowerCase().includes(filters.displayName.toLowerCase())
+        : true;
+
+      if (displayNameMatch) {
+        results.push({ id: doc.id, ...data });
+      }
+    });
+
+    return results;
   }
 }
 

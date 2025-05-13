@@ -10,6 +10,7 @@ import RolePage from './pages/RolePage';
 import SignUpForm from './pages/Signup';
 import AdminDashboard from './pages/AdminDashboard';
 import UserProfile from './pages/UserProfile';
+import Settings from './pages/Settings';
 import EmployerProfile from './pages/EmployerProfile';
 
 
@@ -28,7 +29,7 @@ const App = () => {
           <Route path="/resources" element={<ResourceHub />} />
           <Route path="/employer-profile" element={<EmployerProfile/>} />
           <Route path="/profile" element={<UserProfile userType="applicant" />} />
-          
+          <Route path="/settings" element={<Settings />} />
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
