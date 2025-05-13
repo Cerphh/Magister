@@ -1,104 +1,69 @@
 import React, { useState } from "react";
 import Navbar from "../components/NavBar";
-import { MoreHorizontal, MoreVertical } from "lucide-react";
+import { useAdminValidation } from "../hooks/useAdminValidation";
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Job Post");
-  const [applicants, setApplicants] = useState([
-    { id: 1, position: "High School Teacher", status: "Accept" },
-    { id: 2, position: "High School Teacher", status: "Reject" },
-    { id: 3, position: "High School Teacher", status: "Accept" },
-    { id: 4, position: "High School Teacher", status: "Accept" },
-  ]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { items, loading, validateItem } = useAdminValidation(activeTab);
 
-  const handleStatusChange = (id: number, newStatus: string) => {
-    setApplicants((prev) =>
-      prev.map((applicant) =>
-        applicant.id === id ? { ...applicant, status: newStatus } : applicant
-      )
-    );
+  const handleViewItemClick = (item: any) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
   };
 
-  const handleViewItemClick = (applicant: any) => {
-    setSelectedItem(applicant);
-    setIsModalOpen(true);
+  const handleValidationClick = (id: string, action: string) => {
+    validateItem(id, action);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedItem(null); // Reset selected item
+    setSelectedItem(null);
   };
 
-  const renderTable = () => (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left bg-[#144272] text-white">
-        <thead className="bg-[#F0F5F9] text-sm text-gray-800">
-          <tr>
-            <th className="px-4 py-2 text-center">
-              {activeTab === "Resources"
-                ? "Resource ID"
-                : activeTab === "Events"
-                ? "Event ID"
-                : "Applicant ID"}
-            </th>
-            {activeTab === "Job Post" && (
-              <th className="px-4 py-2 text-center">Position</th>
-            )}
-            <th className="px-4 py-2 text-center">View Pending Item</th>
-            <th className="px-4 py-2 text-center">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applicants.map((applicant) => (
-            <tr key={applicant.id} className="border-t border-[#F0F5F9] text-sm">
-              <td className="px-4 py-2 text-center">{applicant.id}</td>
-              {activeTab === "Job Post" && (
-                <td className="px-4 py-2 text-center">{applicant.position}</td>
-              )}
-              <td className="px-4 py-2 text-center">
-                <button
-                  className="text-[#F0F5F9] underline"
-                  onClick={() => handleViewItemClick(applicant)}
-                >
-                  View Item
-                </button>
-              </td>
-              <td className="px-4 py-2 text-center">
-                <select
-                  className="bg-[#F0F5F9] text-[#144272] px-3 py-1 rounded-full"
-                  value={applicant.status}
-                  onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
-                >
-                  <option value="Accept">Accept</option>
-                  <option value="Reject">Reject</option>
-                </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  const renderDetails = () => {
+    if (!selectedItem) return null;
+
+    return (
+      <div>
+        {activeTab === "Job Post" && (
+          <>
+            <p><strong>Title:</strong> {selectedItem.title}</p>
+            <p><strong>Institution:</strong> {selectedItem.institution}</p>
+            <p><strong>Description:</strong> {selectedItem.description}</p>
+            <p><strong>Type:</strong> {selectedItem.type?.join(", ")}</p>
+          </>
+        )}
+        {activeTab === "Resources" && (
+          <>
+            <p><strong>Display Name:</strong> {selectedItem.displayName}</p>
+            <p><strong>Subject:</strong> {selectedItem.subject}</p>
+            <p><strong>Description:</strong> {selectedItem.description}</p>
+            <p><strong>File Type:</strong> {selectedItem.fileType}</p>
+            <p><strong>Level:</strong> {selectedItem.level}</p>
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#F0F5F9] text-gray-800">
       <Navbar />
-
       <div className="p-6">
         <h1 className="text-xl font-bold mb-4">DASHBOARD</h1>
 
-        <div className="bg-[#F0F5F9] border rounded-lg p-4">
+        <div className="bg-white border rounded-lg p-4">
           <div className="flex space-x-6 border-b pb-2 mb-4">
             {["Job Post", "Resources", "Events"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`$${
+                className={`${
                   activeTab === tab
-                    ? 'text-[#144272]-900 font-semibold border-b-2 border-[#144272]-900'
-                    : 'text-gray-500'
+                    ? "text-[#144272] font-semibold border-b-2 border-[#144272]"
+                    : "text-gray-500"
                 }`}
               >
                 {tab}
@@ -106,22 +71,72 @@ const AdminDashboard: React.FC = () => {
             ))}
           </div>
 
-          {renderTable()}
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left bg-[#144272] text-white">
+                <thead className="bg-[#F0F5F9] text-sm text-gray-800">
+                  <tr>
+                    <th className="px-4 py-2 text-center">ID</th>
+                    {activeTab === "Job Post" && (
+                      <th className="px-4 py-2 text-center">Title</th>
+                    )}
+                    {activeTab === "Resources" && (
+                      <th className="px-4 py-2 text-center">Name</th>
+                    )}
+                    <th className="px-4 py-2 text-center">View Details</th>
+                    <th className="px-4 py-2 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item: any) => (
+                    <tr key={item.id} className="border-t border-[#F0F5F9] text-sm">
+                      <td className="px-4 py-2 text-center">{item.id}</td>
+                      <td className="px-4 py-2 text-center">
+                        {activeTab === "Job Post" ? item.title : item.displayName}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          className="text-white font-semibold underline hover:text-[#F0F5F9]"
+                          onClick={() => handleViewItemClick(item)}
+                        >
+                          View Details
+                        </button>
+                      </td>
+                      <td className="px-4 py-2 text-center space-x-2">
+                        <button
+                          className="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition"
+                          onClick={() => handleValidationClick(item.id, "Accept")}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition"
+                          onClick={() => handleValidationClick(item.id, "Reject")}
+                        >
+                          Reject
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Modal for Viewing Item */}
+      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#F0F5F9] p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">Applicant Details</h2>
-            <p><strong>Applicant ID:</strong> {selectedItem?.id}</p>
-            {activeTab === "Job Post" && <p><strong>Position:</strong> {selectedItem?.position}</p>}
-            <p><strong>Status:</strong> {selectedItem?.status}</p>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
+            <h2 className="text-xl font-bold mb-4">Details</h2>
+            {renderDetails()}
             <div className="mt-4 flex justify-end">
               <button
                 onClick={closeModal}
-                className="bg-[#144272] text-[#F0F5F9] px-4 py-2 rounded-lg"
+                className="bg-[#144272] text-white px-4 py-2 rounded-lg hover:bg-[#12345f]"
               >
                 Close
               </button>
