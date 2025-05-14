@@ -28,7 +28,7 @@ const JobBoard = () => {
     }
 
     try {
-      await applyToJob(selectedJob.id, user.uid, resume, message);
+      await applyToJob(selectedJob.companyId, selectedJob.id, user.uid, resume, message);
       alert('Application submitted successfully!');
       setShowModal(false);
       setResume(null);

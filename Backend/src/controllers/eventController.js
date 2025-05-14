@@ -8,8 +8,13 @@ class EventController {
       description,
       location,
       organizer,
-      category
+      category,
+      companyId
     } = req.body;
+
+    if (!companyId) {
+      return res.status(400).json({ error: "companyId is required" });
+    }
 
     try {
       const eventData = {
@@ -19,6 +24,7 @@ class EventController {
         location,
         organizer,
         category,
+        companyId,
         attendees: [],
         createdAt: new Date(),
       };
@@ -39,6 +45,21 @@ class EventController {
     }
   }
 
+  static async getEventsByCompanyId(req, res) {
+    const { companyId } = req.body;
+
+    if (!companyId) {
+      return res.status(400).json({ error: "companyId is required" });
+    }
+
+    try {
+      const events = await Event.getEventsByCompanyId(companyId);
+      res.status(200).json({ events });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async filterEvents(req, res) {
     const filters = req.body;
 
@@ -51,14 +72,14 @@ class EventController {
   }
 
   static async registerForEvent(req, res) {
-    const { eventId, name, email, userId } = req.body;
+    const { companyId, eventId, name, email, userId } = req.body;
 
-    if (!eventId || !name || !email || !userId) {
+    if (!companyId || !eventId || !name || !email || !userId) {
       return res.status(400).json({ error: "eventId, name, email, and userId are required" });
     }
 
     try {
-      await Event.registerUser(eventId, { name, email, userId });
+      await Event.registerUser(companyId, eventId, { name, email, userId });
       res.status(200).json({ message: "User registered for event successfully" });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -66,20 +87,19 @@ class EventController {
   }
 
   static async deleteEvent(req, res) {
-  const { eventId } = req.body;
+    const { eventId } = req.body;
 
-  if (!eventId) {
-    return res.status(400).json({ error: "eventId is required" });
-  }
+    if (!eventId) {
+      return res.status(400).json({ error: "eventId is required" });
+    }
 
-  try {
-    await Event.deleteEventById(eventId);
-    res.status(200).json({ message: "Event deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    try {
+      await Event.deleteEventById(eventId);
+      res.status(200).json({ message: "Event deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
-}
-  
 }
 
 module.exports = EventController;

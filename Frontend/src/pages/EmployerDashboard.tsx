@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/NavBar";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Download } from "lucide-react";
 import { useEmployerDashboard } from "../hooks/useEmployerDashboard";
 
 const EmployerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"Jobs" | "Applications" | "Events">("Jobs");
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAttendeesModalOpen, setIsAttendeesModalOpen] = useState(false);
   const [dropdownOpenId, setDropdownOpenId] = useState<string | null>(null);
   const [isCreateJobModalOpen, setIsCreateJobModalOpen] = useState(false);
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+  
   const [newJobData, setNewJobData] = useState({
     title: "",
     institution: "",
@@ -23,6 +26,17 @@ const EmployerDashboard: React.FC = () => {
     type: [] as string[],
   });
 
+  const [newEventData, setNewEventData] = useState({
+    title: "",
+    date: "",
+    description: "",
+    location: "",
+    organizer: "",
+    category: "",
+  });
+
+  const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+
   const {
     jobs,
     applications,
@@ -32,13 +46,34 @@ const EmployerDashboard: React.FC = () => {
     fetchJobsByCompany,
     createJob,
     deleteJob,
-    setApplications,
-    setEvents
+    fetchApplicationsByCompany,
+    updateApplicationStatus,
+    downloadResume,
+    fetchEventsByCompany,
+    createEvent,
+    deleteEvent,
   } = useEmployerDashboard();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownOpenId && !dropdownRefs.current[dropdownOpenId]?.contains(event.target as Node)) {
+        setDropdownOpenId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpenId]);
 
   useEffect(() => {
     if (activeTab === "Jobs") {
       fetchJobsByCompany();
+    } else if (activeTab === "Applications") {
+      fetchApplicationsByCompany();
+    } else if (activeTab === "Events") {
+      fetchEventsByCompany();
     }
   }, [activeTab]);
 
@@ -47,19 +82,39 @@ const EmployerDashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleViewAttendees = () => {
+    setIsAttendeesModalOpen(true);
+  };
+
   const handleDeleteItem = async (id: string) => {
-    await deleteJob(id);
+    if (activeTab === "Jobs") {
+      await deleteJob(id);
+    } else if (activeTab === "Events") {
+      await deleteEvent(id);
+    }
     setDropdownOpenId(null);
   };
 
-  const handleRemoveApplication = (id: number) => {
-    setApplications(applications.filter(app => app.id !== id));
+  const handleStatusChange = async (applicationId: string, status: string) => {
+    await updateApplicationStatus(applicationId, status);
     setDropdownOpenId(null);
+  };
+
+  const handleDownloadResume = async (applicationId: string) => {
+    try {
+      await downloadResume(applicationId);
+    } catch (err) {
+      console.error("Failed to download resume:", err);
+    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(null);
+  };
+
+  const closeAttendeesModal = () => {
+    setIsAttendeesModalOpen(false);
   };
 
   const handleCreateJob = async () => {
@@ -75,7 +130,6 @@ const EmployerDashboard: React.FC = () => {
       return;
     }
 
-    // Combine employment type and work location into the type array
     const type = [];
     if (newJobData.employmentType) type.push(newJobData.employmentType);
     if (newJobData.workLocation) type.push(newJobData.workLocation);
@@ -104,6 +158,27 @@ const EmployerDashboard: React.FC = () => {
     }
   };
 
+  const handleCreateEvent = async () => {
+    const result = await createEvent(newEventData);
+    if (result.success) {
+      setIsCreateEventModalOpen(false);
+      setNewEventData({
+        title: "",
+        date: "",
+        description: "",
+        location: "",
+        organizer: "",
+        category: "",
+      });
+    }
+  };
+
+  const formatFirebaseTimestamp = (timestamp: { _seconds: number, _nanoseconds: number }) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000);
+    return date.toLocaleString();
+  };
+
   const renderDetails = () => {
     if (!selectedItem) return null;
 
@@ -124,22 +199,163 @@ const EmployerDashboard: React.FC = () => {
         )}
         {activeTab === "Applications" && (
           <>
-            <p><strong>Name:</strong> {selectedItem.name}</p>
-            <p><strong>Position:</strong> {selectedItem.position}</p>
-            <p><strong>Applied Date:</strong> {selectedItem.appliedDate}</p>
-            <p><strong>Status:</strong> {selectedItem.status}</p>
-            <p><strong>Resume:</strong> {selectedItem.resume}</p>
+            <p><strong>Job ID:</strong> {selectedItem.jobId}</p>
+            <p><strong>Applicant ID:</strong> {selectedItem.applicantId}</p>
+            <p><strong>Status:</strong> 
+              <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
+                selectedItem.status === "Accepted" ? "bg-green-100 text-green-800" :
+                selectedItem.status === "Rejected" ? "bg-red-100 text-red-800" :
+                "bg-blue-100 text-blue-800"
+              }`}>
+                {selectedItem.status}
+              </span>
+            </p>
+            <p><strong>Applied At:</strong> {formatFirebaseTimestamp(selectedItem.appliedAt)}</p>
+            <div className="flex items-center">
+              <strong className="mr-2">Resume:</strong>
+              <button 
+                onClick={() => handleDownloadResume(selectedItem.id)}
+                className="text-blue-600 hover:text-blue-800 flex items-center"
+              >
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </button>
+            </div>
           </>
         )}
         {activeTab === "Events" && (
           <>
             <p><strong>Title:</strong> {selectedItem.title}</p>
             <p><strong>Description:</strong> {selectedItem.description}</p>
-            <p><strong>Date:</strong> {selectedItem.date}</p>
-            <p><strong>Time:</strong> {selectedItem.time}</p>
+            <p><strong>Date:</strong> {new Date(selectedItem.date).toLocaleDateString()}</p>
             <p><strong>Location:</strong> {selectedItem.location}</p>
-            <p><strong>Registered:</strong> {selectedItem.registered}</p>
+            <p><strong>Organizer:</strong> {selectedItem.organizer}</p>
+            <p><strong>Category:</strong> {selectedItem.category}</p>
+            <div className="flex items-center">
+              <strong className="mr-2">Attendees:</strong>
+              <button 
+                onClick={handleViewAttendees}
+                className="text-blue-600 hover:text-blue-800 flex items-center"
+              >
+                {selectedItem.attendees?.length || 0} (View List)
+              </button>
+            </div>
           </>
+        )}
+      </div>
+    );
+  };
+
+  const renderAttendeesModal = () => {
+    if (!selectedItem || !selectedItem.attendees) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
+          <h2 className="text-xl font-bold mb-4">Event Attendees</h2>
+          <div className="space-y-4">
+            {selectedItem.attendees.length === 0 ? (
+              <p>No attendees registered yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-2">Name</th>
+                      <th className="px-4 py-2">Email</th>
+                      <th className="px-4 py-2">User ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedItem.attendees.map((attendee: any, index: number) => (
+                      <tr key={index} className="border-t">
+                        <td className="px-4 py-2">{attendee.name}</td>
+                        <td className="px-4 py-2">{attendee.email}</td>
+                        <td className="px-4 py-2">{attendee.userId}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={closeAttendeesModal}
+              className="bg-[#144272] text-white px-4 py-2 rounded-lg hover:bg-[#12345f]"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderActionDropdown = (id: string, type: 'job' | 'application' | 'event') => {
+    const dropdownId = `${type}-${id}`;
+    const isOpen = dropdownOpenId === dropdownId;
+
+    return (
+      <div className="relative inline-block text-left" ref={el => dropdownRefs.current[dropdownId] = el}>
+        <div>
+          <button
+            type="button"
+            onClick={() => setDropdownOpenId(isOpen ? null : dropdownId)}
+            className="flex items-center justify-center w-full rounded-md px-2 py-2 text-sm focus:outline-none"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
+        </div>
+
+        {isOpen && (
+          <div className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            {type === 'job' && (
+              <button
+                onClick={() => handleDeleteItem(id)}
+                className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+              >
+                Delete Job
+              </button>
+            )}
+            {type === 'application' && (
+              <>
+                <button
+                  onClick={() => handleStatusChange(id, "Accepted")}
+                  className="block w-full px-4 py-2 text-left text-sm text-green-600 hover:bg-gray-100"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() => handleStatusChange(id, "For Interview")}
+                  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+                >
+                  For Interview
+                </button>
+                <button
+                  onClick={() => handleStatusChange(id, "Rejected")}
+                  className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleDownloadResume(id)}
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-600 hover:bg-gray-100 flex items-center"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Resume
+                </button>
+              </>
+            )}
+            {type === 'event' && (
+              <button
+                onClick={() => handleDeleteItem(id)}
+                className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+              >
+                Delete Event
+              </button>
+            )}
+          </div>
         )}
       </div>
     );
@@ -176,6 +392,14 @@ const EmployerDashboard: React.FC = () => {
                 Add Job
               </button>
             )}
+            {activeTab === "Events" && (
+              <button
+                onClick={() => setIsCreateEventModalOpen(true)}
+                className="bg-[#144272] text-white px-4 py-2 rounded-lg hover:bg-[#12345f]"
+              >
+                Create Event
+              </button>
+            )}
           </div>
 
           {loading ? (
@@ -192,10 +416,13 @@ const EmployerDashboard: React.FC = () => {
                       <th className="px-4 py-2 text-center">Title</th>
                     )}
                     {activeTab === "Applications" && (
-                      <th className="px-4 py-2 text-center">Applicant</th>
+                      <>
+                        <th className="px-4 py-2 text-center">Applicant ID</th>
+                        <th className="px-4 py-2 text-center">Status</th>
+                      </>
                     )}
                     {activeTab === "Events" && (
-                      <th className="px-4 py-2 text-center">Event</th>
+                      <th className="px-4 py-2 text-center">Title</th>
                     )}
                     <th className="px-4 py-2 text-center">View Details</th>
                     <th className="px-4 py-2 text-center">Action</th>
@@ -215,29 +442,23 @@ const EmployerDashboard: React.FC = () => {
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
-                        <div className="relative inline-block">
-                          <MoreVertical 
-                            className="cursor-pointer"
-                            onClick={() => setDropdownOpenId(`job-${job.id}`)}
-                          />
-                          {dropdownOpenId === `job-${job.id}` && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                              <button
-                                onClick={() => handleDeleteItem(job.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                              >
-                                Delete Job
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        {renderActionDropdown(job.id, 'job')}
                       </td>
                     </tr>
                   ))}
                   {activeTab === "Applications" && applications.map((app) => (
                     <tr key={app.id} className="border-t border-[#F0F5F9] text-sm">
                       <td className="px-4 py-2 text-center">{app.id}</td>
-                      <td className="px-4 py-2 text-center">{app.name}</td>
+                      <td className="px-4 py-2 text-center">{app.applicantId}</td>
+                      <td className="px-4 py-2 text-center">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          app.status === "Accepted" ? "bg-green-100 text-green-800" :
+                          app.status === "Rejected" ? "bg-red-100 text-red-800" :
+                          "bg-blue-100 text-blue-800"
+                        }`}>
+                          {app.status}
+                        </span>
+                      </td>
                       <td className="px-4 py-2 text-center">
                         <button
                           className="text-white font-semibold underline hover:text-[#F0F5F9]"
@@ -247,22 +468,7 @@ const EmployerDashboard: React.FC = () => {
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
-                        <div className="relative inline-block">
-                          <MoreVertical 
-                            className="cursor-pointer"
-                            onClick={() => setDropdownOpenId(`app-${app.id}`)}
-                          />
-                          {dropdownOpenId === `app-${app.id}` && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                              <button
-                                onClick={() => handleRemoveApplication(app.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                              >
-                                Remove Application
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        {renderActionDropdown(app.id, 'application')}
                       </td>
                     </tr>
                   ))}
@@ -279,22 +485,7 @@ const EmployerDashboard: React.FC = () => {
                         </button>
                       </td>
                       <td className="px-4 py-2 text-center">
-                        <div className="relative inline-block">
-                          <MoreVertical 
-                            className="cursor-pointer"
-                            onClick={() => setDropdownOpenId(`event-${event.id}`)}
-                          />
-                          {dropdownOpenId === `event-${event.id}` && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                              <button
-                                onClick={() => handleDeleteItem(event.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                              >
-                                Delete Event
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        {renderActionDropdown(event.id, 'event')}
                       </td>
                     </tr>
                   ))}
@@ -305,7 +496,7 @@ const EmployerDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Job Details Modal */}
+      {/* Details Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
@@ -322,6 +513,9 @@ const EmployerDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Attendees Modal */}
+      {isAttendeesModalOpen && renderAttendeesModal()}
 
       {/* Create Job Modal */}
       {isCreateJobModalOpen && (
@@ -425,6 +619,92 @@ const EmployerDashboard: React.FC = () => {
                   className="bg-[#144272] text-white px-4 py-2 rounded-lg hover:bg-[#12345f]"
                 >
                   Create Job
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Event Modal */}
+      {isCreateEventModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
+            <h2 className="text-xl font-bold mb-4">Create New Event</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Title*</label>
+                <input
+                  type="text"
+                  value={newEventData.title}
+                  onChange={(e) => setNewEventData({...newEventData, title: e.target.value})}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Date*</label>
+                <input
+                  type="date"
+                  value={newEventData.date}
+                  onChange={(e) => setNewEventData({...newEventData, date: e.target.value})}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description*</label>
+                <textarea
+                  value={newEventData.description}
+                  onChange={(e) => setNewEventData({...newEventData, description: e.target.value})}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  rows={3}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Location*</label>
+                <input
+                  type="text"
+                  value={newEventData.location}
+                  onChange={(e) => setNewEventData({...newEventData, location: e.target.value})}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Organizer*</label>
+                <input
+                  type="text"
+                  value={newEventData.organizer}
+                  onChange={(e) => setNewEventData({...newEventData, organizer: e.target.value})}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Category*</label>
+                <input
+                  type="text"
+                  value={newEventData.category}
+                  onChange={(e) => setNewEventData({...newEventData, category: e.target.value})}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => setIsCreateEventModalOpen(false)}
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateEvent}
+                  className="bg-[#144272] text-white px-4 py-2 rounded-lg hover:bg-[#12345f]"
+                >
+                  Create Event
                 </button>
               </div>
             </div>

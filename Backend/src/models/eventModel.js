@@ -13,13 +13,32 @@ class Event {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
-  static async registerUser(eventId, { name, email, userId }) {
+  static async getEventsByCompanyId(companyId) {
+    const snapshot = await db.collection("events")
+      .where("companyId", "==", companyId)
+      .get();
+      
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  static async filterEvents(filters = {}) {
+    let query = db.collection("events");
+    if (filters.title) query = query.where("title", "==", filters.title);
+    if (filters.location) query = query.where("location", "==", filters.location);
+    if (filters.organizer) query = query.where("organizer", "==", filters.organizer);
+    if (filters.category) query = query.where("category", "==", filters.category);
+
+    const snapshot = await query.get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  static async registerUser(companyId, eventId, { name, email, userId }) {
     const eventRef = db.collection("events").doc(eventId);
     const eventDoc = await eventRef.get();
 
     if (!eventDoc.exists) throw new Error("Event not found");
 
-    const userData = { name, email, userId };
+    const userData = { companyId, name, email, userId };
 
     await eventRef.update({
       attendees: admin.firestore.FieldValue.arrayUnion(userData),
@@ -36,18 +55,6 @@ class Event {
       registeredAt: new Date(),
     });
   }
-
-  static async filterEvents(filters = {}) {
-  let query = db.collection("events");
-  if (filters.title) query = query.where("title", "==", filters.title);
-  if (filters.location) query = query.where("location", "==", filters.location);
-  if (filters.organizer) query = query.where("organizer", "==", filters.organizer);
-  if (filters.category) query = query.where("category", "==", filters.category);
-
-  const snapshot = await query.get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
-
 
   static async deleteEventById(eventId) {
     const eventRef = db.collection("events").doc(eventId);

@@ -76,9 +76,9 @@ class JobController {
 
   static async applyToJob(req, res) {
     try {
-      const { jobId, applicantId, message } = req.body;
+      const { jobId, applicantId, companyId, message } = req.body;
 
-      if (!req.file || !jobId || !applicantId) {
+      if (!req.file || !jobId || !applicantId || !companyId) {
         return res
           .status(400)
           .json({ error: "Missing required fields or resume file." });
@@ -97,6 +97,7 @@ class JobController {
       const applicationData = {
         jobId,
         applicantId,
+        companyId,
         resume: resumeMetadata,
         message: message || "",
         status: "Pending",
@@ -119,6 +120,21 @@ class JobController {
 
     try {
       const applications = await JobApplication.getApplicationsByCompany(companyId);
+      res.status(200).json({ applications });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getApplicationsByApplicant(req, res) {
+    const { applicantId } = req.body;
+
+    if (!applicantId) {
+      return res.status(400).json({ error: "Missing applicantId" });
+    }
+
+    try {
+      const applications = await JobApplication.getApplicationsByApplicant(applicantId);
       res.status(200).json({ applications });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -182,22 +198,22 @@ class JobController {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-}
-
-static async getJobsByCompany(req, res) {
-  const { companyId } = req.body;
-
-  if (!companyId) {
-    return res.status(400).json({ error: "companyId is required" });
   }
 
-  try {
-    const jobs = await Job.getJobsByCompanyId(companyId);
-    res.status(200).json({ jobs });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  static async getJobsByCompany(req, res) {
+    const { companyId } = req.body;
+
+    if (!companyId) {
+      return res.status(400).json({ error: "companyId is required" });
+    }
+
+    try {
+      const jobs = await Job.getJobsByCompanyId(companyId);
+      res.status(200).json({ jobs });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 }
 
-}
 module.exports = JobController;

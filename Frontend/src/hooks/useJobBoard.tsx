@@ -48,28 +48,30 @@ export const useJobBoard = () => {
   };
 
   const applyToJob = async (
-    jobId: string,
-    applicantId: string,
-    resume: File,
-    message: string
-  ) => {
-    const formData = new FormData();
-    formData.append("jobId", jobId);
-    formData.append("applicantId", applicantId);
-    formData.append("resume", resume);
-    formData.append("message", message);
+  companyId: string,
+  jobId: string,
+  applicantId: string,
+  resume: File,
+  message: string
+) => {
+  const formData = new FormData();
+  formData.append("companyId", companyId); // Add this line
+  formData.append("jobId", jobId);
+  formData.append("applicantId", applicantId);
+  formData.append("resume", resume);
+  formData.append("message", message);
 
-    const response = await fetch("http://localhost:5000/api/jobs/apply", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetch("http://localhost:5000/api/jobs/apply", {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to submit application");
-    }
+  if (!response.ok) {
+    throw new Error("Failed to submit application");
+  }
 
-    return await response.json();
-  };
+  return await response.json();
+};
 
   useEffect(() => {
     fetchJobs();

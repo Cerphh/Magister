@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api/jobs";
+const API_BASE = "http://localhost:5000/api";
 
 export type JobType = {
   id: string;
@@ -21,11 +21,22 @@ export type JobType = {
 
 export type ApplicationType = {
   id: string;
-  name: string;
-  position: string;
-  appliedDate: string;
+  jobId: string;
+  applicantId: string;
+  companyId: string;
+  resume: {
+    filename: string;
+    originalName: string;
+    path: string;
+    mimetype: string;
+    size: number;
+  };
+  message?: string;
   status: string;
-  resume: string;
+  appliedAt: {
+    _seconds: number;
+    _nanoseconds: number;
+  };
 };
 
 export type EventType = {
@@ -33,9 +44,17 @@ export type EventType = {
   title: string;
   description: string;
   date: string;
-  time: string;
   location: string;
-  registered: number;
+  organizer: string;
+  category: string;
+  companyId: string;
+  attendees: Array<{
+    name: string;
+    email: string;
+    userId: string;
+    companyId: string;
+  }>;
+  createdAt: string;
 };
 
 export function useEmployerDashboard() {
@@ -45,16 +64,22 @@ export function useEmployerDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getCurrentUser = () => {
+    const userString = localStorage.getItem("user");
+    if (!userString) throw new Error("User not found in localStorage");
+    
+    const user = JSON.parse(userString);
+    if (!user?.uid) throw new Error("User UID not found");
+    
+    return user;
+  };
+
+  // Jobs
   const fetchJobsByCompany = async () => {
     setLoading(true);
     try {
-      const userString = localStorage.getItem("user");
-      if (!userString) throw new Error("User not found in localStorage");
-      
-      const user = JSON.parse(userString);
-      if (!user?.uid) throw new Error("User UID not found");
-      
-      const res = await axios.post(`${API_BASE}/by-company`, { companyId: user.uid });
+      const user = getCurrentUser();
+      const res = await axios.post(`${API_BASE}/jobs/by-company`, { companyId: user.uid });
       setJobs(res.data.jobs || []);
     } catch (err) {
       setError("Failed to fetch jobs");
@@ -67,7 +92,7 @@ export function useEmployerDashboard() {
   const createJob = async (jobData: Omit<JobType, "id" | "datePosted">) => {
     setLoading(true);
     try {
-      const res = await axios.post(`${API_BASE}/post`, jobData);
+      const res = await axios.post(`${API_BASE}/jobs/post`, jobData);
       setJobs(prev => [...prev, res.data.job]);
       return { success: true };
     } catch (err) {
@@ -82,7 +107,7 @@ export function useEmployerDashboard() {
   const deleteJob = async (jobId: string) => {
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE}/${jobId}`);
+      await axios.delete(`${API_BASE}/jobs/${jobId}`);
       setJobs(prev => prev.filter(job => job.id !== jobId));
       return { success: true };
     } catch (err) {
@@ -94,6 +119,132 @@ export function useEmployerDashboard() {
     }
   };
 
+  // Applications
+  const fetchApplicationsByCompany = async () => {
+    setLoading(true);
+    try {
+      const user = getCurrentUser();
+      const res = await axios.post(`${API_BASE}/jobs/applications/by-company`, { 
+        companyId: user.uid 
+      });
+      setApplications(res.data.applications || []);
+    } catch (err) {
+      setError("Failed to fetch applications");
+      console.error("Failed to fetch applications:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateApplicationStatus = async (applicationId: string, status: string) => {
+    setLoading(true);
+    try {
+      await axios.post(`${API_BASE}/jobs/update-status`, { 
+        applicationId, 
+        status 
+      });
+      setApplications(prev => prev.map(app => 
+        app.id === applicationId ? { ...app, status } : app
+      ));
+      return { success: true };
+    } catch (err) {
+      setError("Failed to update application status");
+      console.error("Failed to update application status:", err);
+      return { success: false, error: "Failed to update application status" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadResume = async (applicationId: string) => {
+    try {
+      const response = await axios.post(`${API_BASE}/jobs/view-resume`, { 
+        applicationId 
+      }, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const application = applications.find(app => app.id === applicationId);
+      const originalName = application?.resume?.originalName || 'resume.pdf';
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', originalName);
+      document.body.appendChild(link);
+      link.click();
+      
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download resume:", err);
+      throw err;
+    }
+  };
+
+  // Events
+  const fetchEventsByCompany = async () => {
+    setLoading(true);
+    try {
+      const user = getCurrentUser();
+      const res = await axios.post(`${API_BASE}/events/company`, { 
+        companyId: user.uid 
+      });
+      setEvents(res.data.events || []);
+    } catch (err) {
+      setError("Failed to fetch events");
+      console.error("Failed to fetch events:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createEvent = async (eventData: Omit<EventType, "id" | "attendees" | "createdAt">) => {
+    setLoading(true);
+    try {
+      const user = getCurrentUser();
+      const res = await axios.post(`${API_BASE}/events/create`, {
+        ...eventData,
+        companyId: user.uid
+      });
+      setEvents(prev => [...prev, res.data.event]);
+      return { success: true };
+    } catch (err) {
+      setError("Failed to create event");
+      console.error("Failed to create event:", err);
+      return { success: false, error: "Failed to create event" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteEvent = async (eventId: string) => {
+    setLoading(true);
+    try {
+      await axios.post(`${API_BASE}/events/delete`, { eventId });
+      setEvents(prev => prev.filter(event => event.id !== eventId));
+      return { success: true };
+    } catch (err) {
+      setError("Failed to delete event");
+      console.error("Failed to delete event:", err);
+      return { success: false, error: "Failed to delete event" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const user = getCurrentUser();
+      if (user) {
+        await fetchJobsByCompany();
+        await fetchApplicationsByCompany();
+        await fetchEventsByCompany();
+      }
+    };
+    fetchData();
+  }, []);
+
   return {
     jobs,
     applications,
@@ -103,7 +254,11 @@ export function useEmployerDashboard() {
     fetchJobsByCompany,
     createJob,
     deleteJob,
-    setApplications,
-    setEvents
+    fetchApplicationsByCompany,
+    updateApplicationStatus,
+    downloadResume,
+    fetchEventsByCompany,
+    createEvent,
+    deleteEvent
   };
 }

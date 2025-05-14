@@ -6,7 +6,6 @@ const JobController = require("../controllers/jobController");
 
 const router = express.Router();
 
-// Setup local storage for resumes
 const resumeStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = path.join(__dirname, "../../resumes");
@@ -26,7 +25,8 @@ const uploadResume = multer({ storage: resumeStorage });
 router.post("/post", JobController.createJob);
 router.post("/search", JobController.searchJobs);
 router.post("/apply", uploadResume.single("resume"), JobController.applyToJob);
-router.post("/applications", JobController.getApplicationsByCompany);
+router.post("/applications/by-company", JobController.getApplicationsByCompany);
+router.post("/applications/by-applicant", JobController.getApplicationsByApplicant);
 router.post("/update-status", JobController.updateApplicationStatus);
 router.get("/all", JobController.getAllJobs);
 router.delete("/jobs", JobController.deleteJob);
