@@ -49,6 +49,28 @@ class Job {
       throw new Error("Error fetching jobs: " + error.message);
     }
   }
+
+  static async deleteJobById(jobId) {
+    try {
+      const jobRef = db.collection("jobs").doc(jobId);
+      const jobDoc = await jobRef.get();
+
+      if (!jobDoc.exists) throw new Error("Job not found");
+
+      // Delete job from the 'jobs' collection
+      await jobRef.delete();
+
+      // Optionally, delete from pending_jobs collection if job was pending
+      const pendingJobRef = db.collection("pending_jobs").doc(jobId);
+      const pendingJobDoc = await pendingJobRef.get();
+      if (pendingJobDoc.exists) {
+        await pendingJobRef.delete();
+      }
+
+    } catch (error) {
+      throw new Error("Error deleting job: " + error.message);
+    }
+  }
 }
 
 module.exports = Job;

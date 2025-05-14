@@ -73,6 +73,32 @@ class ResourceController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  static async deleteResource(req, res) {
+    const { resourceId } = req.body;
+
+    if (!resourceId) {
+      return res.status(400).json({ error: "resourceId is required" });
+    }
+
+    try {
+      // Fetch the resource metadata by ID
+      const metadata = await Resource.getMetadataById(resourceId);
+
+      // Delete the resource file from the server
+      const filePath = path.join(__dirname, "../../uploads", metadata.storedName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath); // Delete the file
+      }
+
+      // Delete the resource metadata from Firestore
+      await Resource.deleteMetadataById(resourceId);
+
+      res.status(200).json({ message: "Resource deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = ResourceController;

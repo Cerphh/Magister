@@ -64,6 +64,22 @@ class EventController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  static async deleteEvent(req, res) {
+  const { eventId } = req.body;
+
+  if (!eventId) {
+    return res.status(400).json({ error: "eventId is required" });
+  }
+
+  try {
+    await Event.deleteEventById(eventId);
+    res.status(200).json({ message: "Event deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+  
 }
 
 module.exports = EventController;

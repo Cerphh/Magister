@@ -29,5 +29,6 @@ router.post("/apply", uploadResume.single("resume"), JobController.applyToJob);
 router.post("/applications", JobController.getApplicationsByCompany);
 router.post("/update-status", JobController.updateApplicationStatus);
 router.get("/all", JobController.getAllJobs);
+router.delete("/jobs", JobController.deleteJob);
 
 module.exports = router;

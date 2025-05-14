@@ -139,6 +139,21 @@ class JobController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  static async deleteJob(req, res) {
+    const { jobId } = req.body;
+
+    if (!jobId) {
+      return res.status(400).json({ error: "jobId is required" });
+    }
+
+    try {
+      await Job.deleteJobById(jobId);
+      res.status(200).json({ message: "Job deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = JobController;
