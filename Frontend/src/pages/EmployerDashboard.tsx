@@ -116,6 +116,15 @@ const EmployerDashboard: React.FC = () => {
     setDropdownOpenId(null);
   };
 
+  const [newJob, setNewJob] = useState({
+  company: '',
+  location: '',
+  jobType: 'Full-time', // Can be 'Full-time' or 'Part-time'
+  workType: 'On-site', // Can be 'WFH' or 'On-site'
+  aboutJob: '',
+  aboutRole: '',
+});
+
   return (
     <div className="min-h-screen bg-[#F0F5F9] text-gray-800">
       <Navbar />
@@ -197,6 +206,86 @@ const EmployerDashboard: React.FC = () => {
         </div>
       )}
 
+{/* Add Job Modal */}
+{modalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-[#F0F5F9] p-6 rounded-lg shadow-lg w-1/3">
+      <h2 className="text-xl font-semibold mb-4">Add New Job</h2>
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="Company"
+          value={newJob.company}
+          onChange={(e) => setNewJob({ ...newJob, company: e.target.value })}
+          className="w-full p-2 border rounded-md"
+        />
+        <input
+          type="text"
+          placeholder="Location"
+          value={newJob.location}
+          onChange={(e) => setNewJob({ ...newJob, location: e.target.value })}
+          className="w-full p-2 border rounded-md"
+        />
+        <div className="flex space-x-4">
+          <div className="w-full">
+            <label className="block text-sm">Job Type</label>
+            <select
+              value={newJob.jobType}
+              onChange={(e) => setNewJob({ ...newJob, jobType: e.target.value })}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+            </select>
+          </div>
+          <div className="w-full">
+            <label className="block text-sm">Work Type</label>
+            <select
+              value={newJob.workType}
+              onChange={(e) => setNewJob({ ...newJob, workType: e.target.value })}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="On-site">On-site</option>
+              <option value="WFH">WFH</option>
+            </select>
+          </div>
+        </div>
+        <textarea
+          placeholder="About the Job"
+          value={newJob.aboutJob}
+          onChange={(e) => setNewJob({ ...newJob, aboutJob: e.target.value })}
+          className="w-full p-2 border rounded-md"
+        />
+        <textarea
+          placeholder="About the Role"
+          value={newJob.aboutRole}
+          onChange={(e) => setNewJob({ ...newJob, aboutRole: e.target.value })}
+          className="w-full p-2 border rounded-md"
+        />
+
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={() => {
+              // Logic to save the job
+              console.log(newJob); // You can replace this with actual save logic
+              setModalOpen(false);
+            }}
+            className="bg-[#144272] text-white px-4 py-2 rounded-lg"
+          >
+            Add Job
+          </button>
+          <button
+            onClick={() => setModalOpen(false)}
+            className="bg-gray-400 text-white px-4 py-2 rounded-lg ml-2"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       {/* Main Dashboard */}
       <div className="p-6 grid grid-cols-12 gap-6">
         {/* Left Column */}
@@ -240,8 +329,16 @@ const EmployerDashboard: React.FC = () => {
           </div>
 
           {/* Application Table */}
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-[#F0F5F9] p-4 text-[#144272] font-semibold">Application Management</div>
+         <div className="border rounded-lg overflow-hidden">
+  <div className="bg-[#F0F5F9] p-4 text-[#144272] font-semibold flex justify-between items-center">
+    <span>Application Management</span>
+    <button
+      onClick={() => setModalOpen(true)} // Add your function to open the job add modal
+      className="bg-[#144272] text-white px-4 py-2 rounded-lg"
+    >
+      Add Job
+    </button>
+  </div>
             <table className="w-full text-left bg-[#144272] text-white">
               <thead className="bg-[#F0F5F9] text-sm text-gray-800">
                 <tr>

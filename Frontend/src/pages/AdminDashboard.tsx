@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Navbar from "../components/NavBar";
-import { MoreHorizontal, MoreVertical } from "lucide-react";
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Job Post");
