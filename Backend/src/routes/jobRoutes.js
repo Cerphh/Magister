@@ -31,5 +31,6 @@ router.post("/update-status", JobController.updateApplicationStatus);
 router.get("/all", JobController.getAllJobs);
 router.delete("/jobs", JobController.deleteJob);
 router.post("/view-resume", JobController.viewResume);
+router.post("/by-company", JobController.getJobsByCompany);
 
 module.exports = router;

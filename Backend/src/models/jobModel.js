@@ -69,6 +69,24 @@ class Job {
       throw new Error("Error deleting job: " + error.message);
     }
   }
+
+  static async getJobsByCompanyId(companyId) {
+  try {
+    const snapshot = await db.collection("jobs")
+      .where("companyId", "==", companyId)
+      .get();
+
+    const jobs = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return jobs;
+  } catch (error) {
+    throw new Error("Error fetching jobs by companyId: " + error.message);
+  }
+}
+
 }
 
 module.exports = Job;

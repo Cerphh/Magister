@@ -183,5 +183,21 @@ class JobController {
       res.status(500).json({ error: error.message });
     }
 }
+
+static async getJobsByCompany(req, res) {
+  const { companyId } = req.body;
+
+  if (!companyId) {
+    return res.status(400).json({ error: "companyId is required" });
+  }
+
+  try {
+    const jobs = await Job.getJobsByCompanyId(companyId);
+    res.status(200).json({ jobs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 }
 module.exports = JobController;
