@@ -6,10 +6,10 @@
   </h3>
   <p align="center">
     <b>burgis</b> <br>
-    <a href="https://github.com/VinnRe">Capinpin, Kobe Andrew</a> <br>
-    <a href="https://github.com/oocim">Cuarto, Mico Raphael</a> <br>
-    <a href="https://github.com/BSU-James">Magnaye, James Michael</a> <br>
-    <a href="https://github.com/Exuille">Penuliar, Alexander Guille</a>
+    <a href="https://github.com/Cerphh">Cruz, Paul Oliver E.</a> <br>
+    <a href="https://github.com/oocim">Cuarto, Mico Raphael F.</a> <br>
+    <a href="https://github.com/rmuuu">Montoya, Ram Greggor D.</a> <br>
+    <a href="https://github.com/thea23salva">Salva, Dorothy C.</a>
      </p>
 </div>
 
