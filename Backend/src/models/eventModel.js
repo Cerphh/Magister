@@ -47,16 +47,14 @@ class Event {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 
-  // New deleteEventById method
   static async deleteEventById(eventId) {
     const eventRef = db.collection("events").doc(eventId);
     const eventDoc = await eventRef.get();
 
     if (!eventDoc.exists) throw new Error("Event not found");
 
-    await eventRef.delete(); // Delete event from 'events' collection
+    await eventRef.delete();
 
-    // Optionally delete from 'pending_events' collection if event was pending
     const pendingEventRef = db.collection("pending_events").doc(eventId);
     const pendingEventDoc = await pendingEventRef.get();
     if (pendingEventDoc.exists) {

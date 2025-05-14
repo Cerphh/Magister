@@ -25,6 +25,16 @@ class JobApplication {
     const ref = db.collection("job_applications").doc(applicationId);
     await ref.update({ status });
   }
+  
+  static async getApplicationById(applicationId) {
+    const doc = await db.collection("job_applications").doc(applicationId).get();
+
+    if (!doc.exists) {
+      throw new Error("Application not found");
+    }
+
+    return { id: doc.id, ...doc.data() };
+  }
 }
 
 module.exports = JobApplication;

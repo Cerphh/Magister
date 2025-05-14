@@ -1,6 +1,8 @@
 const Job = require("../models/jobModel");
 const JobApplication = require("../models/jobApplicationModel");
 const { db } = require("../config/firebase");
+const path = require("path");
+const fs = require("fs");
 
 class JobController {
   static async createJob(req, res) {
@@ -154,6 +156,32 @@ class JobController {
       res.status(500).json({ error: error.message });
     }
   }
-}
 
+  static async viewResume(req, res) {
+    const { applicationId } = req.body;
+
+    if (!applicationId) {
+      return res.status(400).json({ error: "applicationId is required" });
+    }
+
+    try {
+      const application = await JobApplication.getApplicationById(applicationId);
+      
+      if (!application) {
+        return res.status(404).json({ error: "Application not found" });
+      }
+
+      const resumePath = application.resume.path;
+
+      if (!fs.existsSync(resumePath)) {
+        return res.status(404).json({ error: "Resume not found on server" });
+      }
+
+      const fileName = path.basename(resumePath); 
+      res.download(resumePath, fileName);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+}
+}
 module.exports = JobController;
