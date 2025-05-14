@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "../components/NavBar";
-<<<<<<< HEAD
-=======
 import { useAdminValidation } from "../hooks/useAdminValidation";
->>>>>>> 7e3908a6ae5565edd78e07fec085a6328a795e5d
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Job Post");

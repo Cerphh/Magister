@@ -8,7 +8,7 @@ const LOCAL_STORAGE_KEY = 'user';
 
 const EmployerProfile: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [profileData, setProfileData] = useState<EmployerProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { updateProfile, loading: updateLoading, error } = useUpdateProfile();
@@ -32,11 +32,13 @@ const EmployerProfile: React.FC = () => {
   }, []);
 
   const handleSave = async (updated: ProfileData) => {
-    if (profileData && updated.role === 'employer') {
+    if (updated.role === 'employer') {
       try {
-        const response = await updateProfile({ ...updated, uid: profileData.uid });
+        const response = await updateProfile(updated);
         if (response) {
-          const updatedUserData = { ...profileData, ...updated };
+          const storedUser = localStorage.getItem(LOCAL_STORAGE_KEY);
+          const currentUser = storedUser ? JSON.parse(storedUser) : {};
+          const updatedUserData = { ...currentUser, ...response };
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedUserData));
           setProfileData(updatedUserData);
           setIsModalOpen(false);
