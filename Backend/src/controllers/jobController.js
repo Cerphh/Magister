@@ -1,10 +1,8 @@
 const Job = require("../models/jobModel");
 const JobApplication = require("../models/jobApplicationModel");
-const path = require("path");
-const fs = require("fs");
+const { db } = require("../config/firebase");
 
 class JobController {
-  // Create a new job (goes to pending_jobs)
   static async createJob(req, res) {
     const {
       title,
@@ -14,7 +12,9 @@ class JobController {
       category,
       description,
       institutionType,
-      companyId,
+      details,
+      type,
+      companyId
     } = req.body;
 
     try {
@@ -22,12 +22,14 @@ class JobController {
         title,
         institution,
         location,
-        applicationDeadline,
-        category,
+        applicationDeadline: applicationDeadline || null,
+        category: category || null,
         description,
-        institutionType,
-        companyId,
+        institutionType: institutionType || null,
+        details: details || null,
+        type: Array.isArray(type) ? type : [],
         datePosted: new Date(),
+        companyId
       };
 
       const jobId = await Job.createPendingJob(jobData);
@@ -37,11 +39,32 @@ class JobController {
     }
   }
 
+  static async getAllJobs(req, res) {
+    try {
+      const snapshot = await db.collection("jobs").get();
+      const jobs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      res.status(200).json({ jobs });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async searchJobs(req, res) {
-    const { title, location, institutionType, date } = req.body;
+    const { title, location, institutionType, date, type, category } = req.body;
 
     try {
-      const filters = { title, location, institutionType, date };
+      const filters = {
+        title,
+        location,
+        institutionType,
+        date,
+        type: Array.isArray(type) ? type : [],
+        category: Array.isArray(category) ? category : [],
+      };
+
       const jobs = await Job.getJobs(filters);
       res.status(200).json({ jobs });
     } catch (error) {
@@ -54,7 +77,9 @@ class JobController {
       const { jobId, applicantId, message } = req.body;
 
       if (!req.file || !jobId || !applicantId) {
-        return res.status(400).json({ error: "Missing required fields or resume file." });
+        return res
+          .status(400)
+          .json({ error: "Missing required fields or resume file." });
       }
 
       const file = req.file;
@@ -102,7 +127,9 @@ class JobController {
     const { applicationId, status } = req.body;
 
     if (!applicationId || !status) {
-      return res.status(400).json({ error: "applicationId and status are required" });
+      return res
+        .status(400)
+        .json({ error: "applicationId and status are required" });
     }
 
     try {
