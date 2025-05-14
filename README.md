@@ -25,7 +25,8 @@ Magister is a web application designed to champion Filipino workers in the educa
 ## Resource Hub:
 * Contribute: Share valuable learning resources like lesson plans, worksheets, and other materials to benefit the community.
 Download: Access a vast library of free, downloadable resources curated by fellow educators. A search and filter system allows for easy exploration.
-
+# Events:
+* Employers: A space for users to freely list upcoming events, seminars, and training.
 <hr class="w-48 h-1 mx-auto my-4 bg-gray-100 border-0 rounded md:my-10 dark:bg-gray-700">
 
 ### Visuals
@@ -39,7 +40,7 @@ Download: Access a vast library of free, downloadable resources curated by fello
     <img src="images/job-board1.png">
 <h2 align="center">Resource Hub</h3>
     <img src="images/resource-hub.png">
-<h2 align="center">Community Forum</h3>
+<h2 align="center">Events</h3>
     <img src="images/forum.png">
 </div>
 
@@ -76,6 +77,13 @@ Download: Access a vast library of free, downloadable resources curated by fello
     Find resources that you need
 * Filter:
     Filter the number of resources showing by picking from the two bars, and click filter to finish
+
+## Events
+* Event Listing:
+       Admins or trusted users can post educational events like webinars, training, or certifications.
+* Event Application/Registration:
+       Interested users can apply or indicate interest in events (e.g., via a simple “Register” button).
+
 
 ## Responsiveness
 * Responsive:
