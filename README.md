@@ -2,10 +2,10 @@
      <img src="images/logo.png" alt="Logo" width="460" height="460">
 
  <h3 align="center">
-    Learn, Connect, Grow
+    The Apprentice of Quality Education
   </h3>
   <p align="center">
-    <b>burgis</b> <br>
+    <b>Team 5</b> <br>
     <a href="https://github.com/Cerphh">Cruz, Paul Oliver E.</a> <br>
     <a href="https://github.com/oocim">Cuarto, Mico Raphael F.</a> <br>
     <a href="https://github.com/rmuuu">Montoya, Ram Greggor D.</a> <br>
