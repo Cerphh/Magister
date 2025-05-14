@@ -23,30 +23,40 @@ const AdminDashboard: React.FC = () => {
   };
 
   const renderDetails = () => {
-    if (!selectedItem) return null;
+  if (!selectedItem) return null;
 
-    return (
-      <div>
-        {activeTab === "Job Post" && (
-          <>
-            <p><strong>Title:</strong> {selectedItem.title}</p>
-            <p><strong>Institution:</strong> {selectedItem.institution}</p>
-            <p><strong>Description:</strong> {selectedItem.description}</p>
-            <p><strong>Type:</strong> {selectedItem.type?.join(", ")}</p>
-          </>
-        )}
-        {activeTab === "Resources" && (
-          <>
-            <p><strong>Display Name:</strong> {selectedItem.displayName}</p>
-            <p><strong>Subject:</strong> {selectedItem.subject}</p>
-            <p><strong>Description:</strong> {selectedItem.description}</p>
-            <p><strong>File Type:</strong> {selectedItem.fileType}</p>
-            <p><strong>Level:</strong> {selectedItem.level}</p>
-          </>
-        )}
-      </div>
-    );
-  };
+  return (
+    <div>
+      {activeTab === "Job Post" && (
+        <>
+          <p><strong>Title:</strong> {selectedItem.title}</p>
+          <p><strong>Institution:</strong> {selectedItem.institution}</p>
+          <p><strong>Description:</strong> {selectedItem.description}</p>
+          <p><strong>Type:</strong> {selectedItem.type?.join(", ")}</p>
+        </>
+      )}
+      {activeTab === "Resources" && (
+        <>
+          <p><strong>Display Name:</strong> {selectedItem.displayName}</p>
+          <p><strong>Subject:</strong> {selectedItem.subject}</p>
+          <p><strong>Description:</strong> {selectedItem.description}</p>
+          <p><strong>File Type:</strong> {selectedItem.fileType}</p>
+          <p><strong>Level:</strong> {selectedItem.level}</p>
+        </>
+      )}
+      {activeTab === "Events" && (
+        <>
+          <p><strong>Title:</strong> {selectedItem.title}</p>
+          <p><strong>Organizer:</strong> {selectedItem.organizer}</p>
+          <p><strong>Category:</strong> {selectedItem.category}</p>
+          <p><strong>Location:</strong> {selectedItem.location}</p>
+          <p><strong>Date:</strong> {new Date(selectedItem.date).toLocaleString()}</p>
+          <p><strong>Description:</strong> {selectedItem.description}</p>
+        </>
+      )}
+    </div>
+  );
+};
 
   return (
     <div className="min-h-screen bg-[#F0F5F9] text-gray-800">
@@ -85,6 +95,9 @@ const AdminDashboard: React.FC = () => {
                     {activeTab === "Resources" && (
                       <th className="px-4 py-2 text-center">Name</th>
                     )}
+                    {activeTab === "Events" && (
+                      <th className="px-4 py-2 text-center">Event Name</th>
+                    )}
                     <th className="px-4 py-2 text-center">View Details</th>
                     <th className="px-4 py-2 text-center">Action</th>
                   </tr>
@@ -94,7 +107,11 @@ const AdminDashboard: React.FC = () => {
                     <tr key={item.id} className="border-t border-[#F0F5F9] text-sm">
                       <td className="px-4 py-2 text-center">{item.id}</td>
                       <td className="px-4 py-2 text-center">
-                        {activeTab === "Job Post" ? item.title : item.displayName}
+                        {activeTab === "Job Post"
+                          ? item.title
+                          : activeTab === "Resources"
+                          ? item.displayName
+                          : item.name}
                       </td>
                       <td className="px-4 py-2 text-center">
                         <button
@@ -107,13 +124,13 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-4 py-2 text-center space-x-2">
                         <button
                           className="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition"
-                          onClick={() => handleValidationClick(item.id, "Accept")}
+                          onClick={() => handleValidationClick(item.id, "accept")}
                         >
                           Accept
                         </button>
                         <button
                           className="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition"
-                          onClick={() => handleValidationClick(item.id, "Reject")}
+                          onClick={() => handleValidationClick(item.id, "reject")}
                         >
                           Reject
                         </button>

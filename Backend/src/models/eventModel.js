@@ -38,14 +38,16 @@ class Event {
   }
 
   static async filterEvents(filters = {}) {
-    let query = db.collection("events");
-    if (filters.title) query = query.where("title", "==", filters.title);
-    if (filters.location) query = query.where("location", "==", filters.location);
-    if (filters.organizer) query = query.where("organizer", "==", filters.organizer);
+  let query = db.collection("events");
+  if (filters.title) query = query.where("title", "==", filters.title);
+  if (filters.location) query = query.where("location", "==", filters.location);
+  if (filters.organizer) query = query.where("organizer", "==", filters.organizer);
+  if (filters.category) query = query.where("category", "==", filters.category);
 
-    const snapshot = await query.get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  }
+  const snapshot = await query.get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
 
   static async deleteEventById(eventId) {
     const eventRef = db.collection("events").doc(eventId);

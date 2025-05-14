@@ -8,17 +8,17 @@ class EventController {
       description,
       location,
       organizer,
-      registrationLink
+      category
     } = req.body;
 
     try {
       const eventData = {
         title,
-        date: new Date(date),
+        date,
         description,
         location,
         organizer,
-        registrationLink,
+        category,
         attendees: [],
         createdAt: new Date(),
       };

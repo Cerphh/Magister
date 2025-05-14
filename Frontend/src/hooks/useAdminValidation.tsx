@@ -1,4 +1,3 @@
-// src/hooks/useAdminValidation.ts
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -23,7 +22,19 @@ export type ResourceType = {
   status?: string;
 };
 
-type ItemType = JobType | ResourceType;
+export type EventType = {
+  id: string;
+  title: string;
+  location: string;
+  date: string;
+  description: string;
+  organizer: string;
+  category: string;
+  createdAt: string;
+  status?: string;
+};
+
+type ItemType = JobType | ResourceType | EventType;
 
 export function useAdminValidation(tab: string) {
   const [items, setItems] = useState<ItemType[]>([]);
@@ -37,12 +48,30 @@ export function useAdminValidation(tab: string) {
           ? "jobs"
           : tab === "Resources"
           ? "resources"
-          : "events/all"; // You said skip events for now
+          : tab === "Events"
+          ? "events"
+          : "";
       const res = await axios.get(`${API_BASE}/${endpoint}`);
-      setItems((res.data.jobs || res.data.resources || res.data.events).map((item: any) => ({
-        ...item,
-        status: "Accept",
-      })));
+      const rawData = res.data.jobs || res.data.resources || res.data.events;
+
+      setItems(
+        rawData.map((item: any) => {
+          if (tab === "Events") {
+            return {
+              id: item.id,
+              title: item.title,
+              location: item.location,
+              date: item.date,
+              description: item.description,
+              organizer: item.organizer,
+              category: item.category,
+              createdAt: item.createdAt,
+              status: "accept",
+            };
+          }
+          return { ...item, status: "accept" };
+        })
+      );
     } catch (error) {
       console.error("Failed to fetch:", error);
     } finally {
@@ -56,14 +85,18 @@ export function useAdminValidation(tab: string) {
         ? "jobs/validate"
         : tab === "Resources"
         ? "resources/validate"
-        : "events/validate";
+        : tab === "Events"
+        ? "events/validate"
+        : "";
 
     const payload =
       tab === "Job Post"
         ? { jobId: id, action }
         : tab === "Resources"
         ? { resourceId: id, action }
-        : { eventId: id, action };
+        : tab === "Events"
+        ? { eventId: id, action }
+        : {};
 
     try {
       await axios.post(`${API_BASE}/${endpoint}`, payload);
