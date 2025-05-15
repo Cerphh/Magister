@@ -1,5 +1,5 @@
 <div align="center">
-     <img src="images/logo.png" alt="Logo" width="460" height="460">
+     <img src="![image](https://github.com/user-attachments/assets/c7a2d933-97aa-4f69-b8a4-871f67724b67)" alt="Logo" width="460" height="460">
 
  <h3 align="center">
     The Apprentice of Quality Education
@@ -32,16 +32,15 @@ Download: Access a vast library of free, downloadable resources curated by fello
 ### Visuals
 <div align="center">
 <h2 align="center">Login</h3>
-    <img src="images/login.png">
+    <img src="![image](https://github.com/user-attachments/assets/5b5f69aa-dcba-4098-be43-4e8b8fdfa6b7)">
 <h2 align="center">Signup</h3>
-    <img src="images/signup.png">
+    <img src="![image](https://github.com/user-attachments/assets/1147a419-a806-471a-b95e-74bb0246627b)">
 <h2 align="center">Job Board</h3>
-    <img src="images/job-board.png">
-    <img src="images/job-board1.png">
+    <img src="![image](https://github.com/user-attachments/assets/c08a5d20-823b-4b98-be29-2212ad6d46fe)">
 <h2 align="center">Resource Hub</h3>
-    <img src="images/resource-hub.png">
+    <img src="![image](https://github.com/user-attachments/assets/8c948e5b-ffc9-4666-ac00-a0d7f434a566)">
 <h2 align="center">Events</h3>
-    <img src="images/forum.png">
+    <img src="![image](https://github.com/user-attachments/assets/b993069d-3be2-4c95-b102-95a9618f38d7)">
 </div>
 
 
