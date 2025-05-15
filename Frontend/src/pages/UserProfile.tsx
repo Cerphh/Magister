@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../components/NavBar';
 import EditProfileModal from '../components/EditProfileModal';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
+import { useFetchApplications } from '../hooks/useFetchApplications';
 import type { ProfileData, ApplicantProfileData } from '../types/profile';
 
 const LOCAL_STORAGE_KEY = 'user';
@@ -12,10 +13,12 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isApplicationsModalOpen, setIsApplicationsModalOpen] = useState(false);
   const [profileData, setProfileData] = useState<ApplicantProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { updateProfile, loading: updateLoading, error } = useUpdateProfile();
+  const { applications, loading: applicationsLoading, error: applicationsError, fetchApplications } = useFetchApplications();
 
   useEffect(() => {
     const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -48,6 +51,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
       } catch (err) {
         console.error('Error updating profile:', err);
       }
+    }
+  };
+
+  const openApplicationsModal = () => {
+    if (profileData?.uid) {
+      fetchApplications(profileData.uid);
+      setIsApplicationsModalOpen(true);
     }
   };
 
@@ -120,12 +130,18 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
             <p className="text-gray-700 text-sm leading-relaxed">{profileData.about}</p>
           </div>
 
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-end mt-6 gap-4">
             <button
               onClick={() => setIsModalOpen(true)}
               className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
             >
               Edit Profile
+            </button>
+            <button
+              onClick={openApplicationsModal}
+              className="px-4 py-2 text-sm rounded bg-green-600 text-white hover:bg-green-700"
+            >
+              My Applications
             </button>
           </div>
         </div>
@@ -139,8 +155,79 @@ const UserProfile: React.FC<UserProfileProps> = ({ userType }) => {
         />
       )}
 
+      {isApplicationsModalOpen && (
+        <ApplicationsModal
+          applications={applications}
+          loading={applicationsLoading}
+          error={applicationsError}
+          onClose={() => setIsApplicationsModalOpen(false)}
+        />
+      )}
+
       {updateLoading && <div className="text-center py-4 text-gray-500">Updating profile...</div>}
       {error && <div className="text-center py-4 text-red-500">{error}</div>}
+    </div>
+  );
+};
+
+interface ApplicationsModalProps {
+  applications: any[];
+  loading: boolean;
+  error: string | null;
+  onClose: () => void;
+}
+
+const ApplicationsModal: React.FC<ApplicationsModalProps> = ({ applications, loading, error, onClose }) => {
+  const formatDate = (date: any) => {
+    if (!date) return "N/A";
+    // support Firestore Timestamp or ISO string
+    if (date._seconds && date._nanoseconds) {
+      const ms = date._seconds * 1000 + Math.floor(date._nanoseconds / 1000000);
+      return new Date(ms).toLocaleDateString();
+    }
+    return new Date(date).toLocaleDateString();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-auto shadow-lg relative">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 font-bold text-lg"
+          aria-label="Close applications modal"
+        >
+          &times;
+        </button>
+        <h2 className="text-xl font-semibold mb-4">My Job Applications</h2>
+
+        {loading && <p>Loading applications...</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
+
+        {!loading && !error && applications.length === 0 && (
+          <p>No applications found.</p>
+        )}
+
+        {!loading && !error && applications.length > 0 && (
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-2 px-4">Job Title</th>
+                <th className="text-left py-2 px-4">Status</th>
+                <th className="text-left py-2 px-4">Applied Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map((app) => (
+                <tr key={app._id || app.id} className="border-b">
+                  <td className="py-2 px-4">{app.jobTitle || app.job?.title || 'N/A'}</td>
+                  <td className="py-2 px-4">{app.status || 'N/A'}</td>
+                  <td className="py-2 px-4">{formatDate(app.createdAt || app.appliedAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };

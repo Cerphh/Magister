@@ -52,14 +52,16 @@ export const useJobBoard = () => {
   jobId: string,
   applicantId: string,
   resume: File,
-  message: string
+  message: string,
+  jobTitle: string
 ) => {
   const formData = new FormData();
-  formData.append("companyId", companyId); // Add this line
+  formData.append("companyId", companyId);
   formData.append("jobId", jobId);
   formData.append("applicantId", applicantId);
   formData.append("resume", resume);
   formData.append("message", message);
+  formData.append("jobTitle", jobTitle);
 
   const response = await fetch("http://localhost:5000/api/jobs/apply", {
     method: "POST",

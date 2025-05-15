@@ -75,41 +75,42 @@ class JobController {
   }
 
   static async applyToJob(req, res) {
-    try {
-      const { jobId, applicantId, companyId, message } = req.body;
+  try {
+    const { jobId, applicantId, companyId, jobTitle, message } = req.body;
 
-      if (!req.file || !jobId || !applicantId || !companyId) {
-        return res
-          .status(400)
-          .json({ error: "Missing required fields or resume file." });
-      }
-
-      const file = req.file;
-
-      const resumeMetadata = {
-        filename: file.filename,
-        originalName: file.originalname,
-        path: file.path,
-        mimetype: file.mimetype,
-        size: file.size,
-      };
-
-      const applicationData = {
-        jobId,
-        applicantId,
-        companyId,
-        resume: resumeMetadata,
-        message: message || "",
-        status: "Pending",
-        appliedAt: new Date(),
-      };
-
-      const applicationId = await JobApplication.createApplication(applicationData);
-      res.status(201).json({ message: "Application submitted", applicationId });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+    if (!req.file || !jobId || !applicantId || !companyId || !jobTitle) {
+      return res
+        .status(400)
+        .json({ error: "Missing required fields, including jobTitle or resume file." });
     }
+
+    const file = req.file;
+
+    const resumeMetadata = {
+      filename: file.filename,
+      originalName: file.originalname,
+      path: file.path,
+      mimetype: file.mimetype,
+      size: file.size,
+    };
+
+    const applicationData = {
+      jobId,
+      applicantId,
+      companyId,
+      jobTitle,     
+      resume: resumeMetadata,
+      message: message || "",
+      status: "Pending",
+      appliedAt: new Date(),
+    };
+
+    const applicationId = await JobApplication.createApplication(applicationData);
+    res.status(201).json({ message: "Application submitted", applicationId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
+}
 
   static async getApplicationsByCompany(req, res) {
     const { companyId } = req.body;
