@@ -1,47 +1,26 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/NavBar';
 import { Search, Calendar, MapPin, X } from 'lucide-react';
+import { useEvents, EventData } from '../hooks/useEvents';
 
-interface Event {
-  title: string;
-  date: string;
-  location: string;
-  type: string;
-  image: string;
-}
-
-const allEvents: Event[] = [
-  {
-    title: 'Annual Education Conference',
-    date: 'June 05, 2025',
-    location: 'Makati City, Philippines',
-    type: 'Seminar',
-    image: '/src/assets/event1.png',
-  },
-  {
-    title: 'Teacher Training Workshop',
-    date: 'July 25, 2025',
-    location: 'Makati City, Philippines',
-    type: 'Seminar',
-    image: '/src/assets/event2.png',
-  },
-  {
-    title: 'Online Webinar: Digital Education',
-    date: 'August 15, 2025',
-    location: 'Online',
-    type: 'Webinar',
-    image: '/src/assets/event3.png',
-  },
-];
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(date);
+};
 
 const Events = () => {
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const { events, loading, registerForEvent } = useEvents();
+  const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
   const [filter, setFilter] = useState<string>('All');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(allEvents);
+  const [filteredEvents, setFilteredEvents] = useState<EventData[]>([]);
 
   useEffect(() => {
-    let updatedEvents = allEvents;
+    let updatedEvents = events;
 
     if (filter !== 'All') {
       updatedEvents = updatedEvents.filter(event => event.type === filter);
@@ -54,9 +33,9 @@ const Events = () => {
     }
 
     setFilteredEvents(updatedEvents);
-  }, [filter, searchTerm]);
+  }, [filter, searchTerm, events]);
 
-  const openModal = (event: Event) => {
+  const openModal = (event: EventData) => {
     setSelectedEvent(event);
   };
 
@@ -100,45 +79,51 @@ const Events = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {filteredEvents.map((event, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-xl overflow-hidden shadow-sm border hover:shadow-md transition-shadow"
-            >
-              <div className="relative">
-                <img src={event.image} alt={event.title} className="w-full h-48 object-cover" />
-                <span className="absolute top-2 right-2 bg-[#082C57] text-white text-xs px-2 py-1 rounded">
-                  {event.type}
-                </span>
-              </div>
-              <div className="p-4">
-                <h2 className="font-semibold text-lg text-[#082C57]">{event.title}</h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Join us for a day of insightful talks and networking with fellow educators
-                </p>
+        {loading ? (
+          <p className="mt-10 text-center text-[#082C57] font-medium">Loading events...</p>
+        ) : filteredEvents.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {filteredEvents.map((event, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-xl overflow-hidden shadow-sm border hover:shadow-md transition-shadow"
+              >
+                <div className="relative">
+                  <span className="absolute top-2 right-2 bg-[#082C57] text-white text-xs px-2 py-1 rounded">
+                    {event.type}
+                  </span>
+                  {event.image && (
+                    <img src={event.image} alt={event.title} className="w-full h-40 object-cover" />
+                  )}
+                </div>
+                <div className="p-4">
+                  <h2 className="font-semibold text-lg text-[#082C57]">{event.title}</h2>
+                  <p className="text-sm text-gray-600 mt-1">{event.description}</p>
 
-                <div className="flex items-center text-sm text-gray-600 mt-3">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <span className="mr-4">Date: {event.date}</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  <span>Location: {event.location}</span>
-                </div>
+                  <div className="flex items-center text-sm text-gray-600 mt-3">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span className="mr-4">Date: {formatDate(event.date)}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600 mt-1">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    <span>Location: {event.location}</span>
+                  </div>
 
-                <div className="mt-3 text-right">
-                  <button
-                    onClick={() => openModal(event)}
-                    className="text-[#205295] text-sm font-medium hover:underline"
-                  >
-                    See more...
-                  </button>
+                  <div className="mt-3 text-right">
+                    <button
+                      onClick={() => openModal(event)}
+                      className="text-[#205295] text-sm font-medium hover:underline"
+                    >
+                      See more...
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-10 text-center text-gray-500">No events found.</p>
+        )}
       </div>
 
       {/* Modal */}
@@ -151,19 +136,12 @@ const Events = () => {
             >
               <X size={20} />
             </button>
-            <img
-              src={selectedEvent.image}
-              alt={selectedEvent.title}
-              className="w-full h-48 object-cover rounded mb-4"
-            />
             <h2 className="text-xl font-semibold text-[#082C57]">{selectedEvent.title}</h2>
-            <p className="text-sm text-gray-600 mt-2">
-              This event offers valuable insights and networking opportunities for educators.
-            </p>
+            <p className="text-sm text-gray-600 mt-2">{selectedEvent.description}</p>
             <div className="mt-4 text-sm text-gray-600">
               <div className="flex items-center mb-2">
                 <Calendar className="w-4 h-4 mr-2" />
-                <span>{selectedEvent.date}</span>
+                <span>{formatDate(selectedEvent.date)}</span>
               </div>
               <div className="flex items-center mb-2">
                 <MapPin className="w-4 h-4 mr-2" />
@@ -175,8 +153,8 @@ const Events = () => {
             </div>
             <div className="text-right">
               <button
-                onClick={() => alert('Register button clicked!')}
-                className="mt-2 px-4 py-2 bg-[#144272] text-white text-sm rounded hover:bg-[#2C74B3] transition-colors"
+                onClick={() => registerForEvent(selectedEvent.id)}
+                className="mt-4 px-4 py-2 bg-[#144272] text-white text-sm rounded hover:bg-[#2C74B3] transition-colors"
               >
                 Register
               </button>

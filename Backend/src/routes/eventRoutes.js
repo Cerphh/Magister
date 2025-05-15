@@ -7,5 +7,7 @@ router.post("/create", EventController.createEvent);
 router.get("/all", EventController.getEvents);
 router.post("/filter", EventController.filterEvents);
 router.post("/register", EventController.registerForEvent);
+router.delete("/events", EventController.deleteEvent);
+router.post("/company", EventController.getEventsByCompanyId);
 
 module.exports = router;

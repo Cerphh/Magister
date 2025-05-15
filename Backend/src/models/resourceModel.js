@@ -46,6 +46,18 @@ class Resource {
 
     return results;
   }
+
+  static async getMetadataById(resourceId) {
+    const doc = await db.collection("resources").doc(resourceId).get();
+
+    if (!doc.exists) throw new Error("Resource not found");
+    
+    return { id: doc.id, ...doc.data() };
+  }
+
+  static async deleteMetadataById(resourceId) {
+    await db.collection("resources").doc(resourceId).delete();
+  }
 }
 
 module.exports = Resource;
