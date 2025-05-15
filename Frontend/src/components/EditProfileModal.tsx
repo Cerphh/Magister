@@ -1,139 +1,223 @@
 import React, { useState } from 'react';
+import type { ProfileData } from '../types/profile';
 
-interface ProfileData {
-  uid?: string;
-  displayName: string;
-  location: string;
-  role: string; // 'applicant' or 'employer'
-  subjects?: string[];
-  teachingLevel?: string[];
-  about: string;
-  companyName?: string;
-  companyType?: string;
-}
-
-interface Props {
+interface EditProfileModalProps {
   profileData: ProfileData;
   onClose: () => void;
-  onSave: (updatedData: ProfileData) => Promise<void>; // <- fix here
+  onSave: (updatedData: ProfileData) => Promise<void>;
 }
 
+const EditProfileModal: React.FC<EditProfileModalProps> = ({
+  profileData,
+  onClose,
+  onSave,
+}) => {
+  const [formData, setFormData] = useState<ProfileData>(profileData);
+  const [isSaving, setIsSaving] = useState(false);
 
-const allSubjects = ['Math', 'Science', 'English', 'History', 'PE', 'Music', 'Art', 'ICT', 'Filipino'];
-const allTeachingLevels = ['Preschool', 'Elementary', 'High School', 'College', 'Vocational', 'Graduate'];
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-const EditProfileModal: React.FC<Props> = ({ profileData, onClose, onSave }) => {
-  const [formData, setFormData] = useState<ProfileData>({
-    ...profileData,
-    subjects: profileData.subjects || [],
-    teachingLevel: profileData.teachingLevel || [],
-  });
+  const handleSubmit = async () => {
+    setIsSaving(true);
+    try {
+      const oldData = JSON.parse(localStorage.getItem('user') || '{}');
+      const updatedData = { ...oldData, ...formData };
+      await onSave(updatedData);
+      localStorage.setItem('user', JSON.stringify(updatedData));
+      onClose();
+    } catch (err) {
+      console.error('Failed to save:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-  const toggleItem = (key: 'subjects' | 'teachingLevel', item: string) => {
-    setFormData(prev => ({
+  const toggleArrayValue = (
+    key: 'subjects' | 'teachingLevel',
+    value: string
+  ) => {
+    const currentValues = (formData as any)[key] || [];
+    const updatedValues = currentValues.includes(value)
+      ? currentValues.filter((v: string) => v !== value)
+      : [...currentValues, value];
+
+    setFormData((prev) => ({
       ...prev,
-      [key]: prev[key]?.includes(item)
-        ? prev[key]!.filter((i: string) => i !== item)
-        : [...(prev[key] || []), item],
+      [key]: updatedValues,
     }));
   };
 
-  const handleSave = () => {
-    onSave(formData);
-  };
+  const subjectOptions = [
+  'Mathematics',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'English Language',
+  'Literature',
+  'History',
+  'Geography',
+  'Computer Science',
+  'Economics',
+  'Business Studies',
+  'Philosophy',
+  'Psychology',
+  'Political Science',
+  'Sociology',
+  'Art',
+  'Music',
+  'Physical Education',
+  'Religious Studies',
+  'Special Education',
+  'Engineering',
+  'Environmental Science',
+  'Health Education',
+  'Language Acquisition (e.g., Spanish, French)',
+];
+
+
+  const levelOptions = [
+  'Preschool',
+  'Kindergarten',
+  'Elementary School',
+  'Middle School',
+  'High School',
+  'Undergraduate (College)',
+  'Graduate (Masters)',
+  'Postgraduate (PhD)',
+  'Technical/Vocational',
+  'Adult Education',
+  'Special Needs Education',
+];
+
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-full max-w-lg shadow-xl relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+      <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-4 text-[#082C57]">Edit Profile</h2>
 
         <div className="space-y-4">
           <input
             type="text"
-            value={formData.displayName}
-            onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+            name="displayName"
+            value={formData.displayName || ''}
+            onChange={handleChange}
             placeholder="Display Name"
-            className="w-full border rounded px-3 py-2 text-sm"
+            className="w-full px-3 py-2 border rounded"
           />
 
           <input
             type="text"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            name="location"
+            value={formData.location || ''}
+            onChange={handleChange}
             placeholder="Location"
-            className="w-full border rounded px-3 py-2 text-sm"
+            className="w-full px-3 py-2 border rounded"
           />
 
-          <textarea
-            value={formData.about}
-            onChange={(e) => setFormData({ ...formData, about: e.target.value })}
-            placeholder="About you"
-            className="w-full border rounded px-3 py-2 text-sm"
-            rows={3}
-          />
+          {'companyName' in formData && (
+            <input
+              type="text"
+              name="companyName"
+              value={formData.companyName || ''}
+              onChange={handleChange}
+              placeholder="Company Name"
+              className="w-full px-3 py-2 border rounded"
+            />
+          )}
 
-          {formData.role === 'applicant' && (
-            <>
-              <div>
-                <label className="text-sm text-[#082C57]">Subjects</label>
-                <div className="flex gap-3 mt-2 flex-wrap">
-                  {allSubjects.map((subject) => (
+          {'companyType' in formData && (
+            <input
+              type="text"
+              name="companyType"
+              value={formData.companyType || ''}
+              onChange={handleChange}
+              placeholder="Company Type"
+              className="w-full px-3 py-2 border rounded"
+            />
+          )}
+
+          {'subjects' in formData && (
+            <div>
+              <label className="block font-semibold text-sm mb-2 text-gray-700">
+                Subjects of Expertise
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {subjectOptions.map((subject) => {
+                  const isSelected = formData.subjects?.includes(subject);
+                  return (
                     <button
                       key={subject}
-                      onClick={() => toggleItem('subjects', subject)}
-                      className={`border rounded px-3 py-2 text-sm ${
-                        formData.subjects?.includes(subject) ? 'bg-blue-600 text-white' : ''
+                      type="button"
+                      onClick={() => toggleArrayValue('subjects', subject)}
+                      className={`px-3 py-1 rounded-full text-sm border transition ${
+                        isSelected
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
                       }`}
                     >
                       {subject}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
+            </div>
+          )}
 
-              <div>
-                <label className="text-sm text-[#082C57]">Teaching Level</label>
-                <div className="flex gap-3 mt-2 flex-wrap">
-                  {allTeachingLevels.map((level) => (
+          {'teachingLevel' in formData && (
+            <div>
+              <label className="block font-semibold text-sm mb-2 text-gray-700">
+                Teaching Level
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {levelOptions.map((level) => {
+                  const isSelected = formData.teachingLevel?.includes(level);
+                  return (
                     <button
                       key={level}
-                      onClick={() => toggleItem('teachingLevel', level)}
-                      className={`border rounded px-3 py-2 text-sm ${
-                        formData.teachingLevel?.includes(level) ? 'bg-green-600 text-white' : ''
+                      type="button"
+                      onClick={() => toggleArrayValue('teachingLevel', level)}
+                      className={`px-3 py-1 rounded-full text-sm border transition ${
+                        isSelected
+                          ? 'bg-green-600 text-white border-green-600'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
                       }`}
                     >
                       {level}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            </>
+            </div>
           )}
 
-          {formData.role === 'employer' && (
-            <>
-              <input
-                type="text"
-                value={formData.companyName || ''}
-                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                placeholder="Company Name"
-                className="w-full border rounded px-3 py-2 text-sm"
-              />
+          <textarea
+            name="about"
+            value={formData.about || ''}
+            onChange={handleChange}
+            placeholder="About"
+            className="w-full px-3 py-2 border rounded h-24 resize-none"
+          />
+        </div>
 
-              <input
-                type="text"
-                value={formData.companyType || ''}
-                onChange={(e) => setFormData({ ...formData, companyType: e.target.value })}
-                placeholder="Company Type"
-                className="w-full border rounded px-3 py-2 text-sm"
-              />
-            </>
-          )}
-
-          <div className="flex justify-end gap-3 mt-4">
-            <button onClick={onClose} className="px-4 py-2 text-sm bg-gray-300 rounded text-black">Cancel</button>
-            <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 rounded text-white">Save</button>
-          </div>
+        <div className="flex justify-end mt-6 gap-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm rounded bg-gray-300 hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={isSaving}
+            className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
         </div>
       </div>
     </div>

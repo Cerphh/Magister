@@ -139,7 +139,7 @@ const Navbar = () => {
       </div>
 
       <div className="order-3 md:order-2 flex flex-col md:flex-row gap-4 md:gap-10 px-4 py-2 md:py-0">
-        <Link to="/" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Home</Link>
+        
         {userType === 'applicant' && (
           <>
             <Link to="/jobs" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Job Board</Link>
@@ -150,7 +150,9 @@ const Navbar = () => {
         <Link to="/resources" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Resource Hub</Link>
         {userType === 'employer' && (
           <Link to="/employer-dashboard" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Dashboard</Link>
-        )}
+        )}{userType === 'admin' && (
+          <Link to="/admin-dashboard" onClick={() => setIsMenuOpen(false)} className="hover:underline underline-offset-4">Admin Dashboard</Link>
+          )}
       </div>
     </div>
   </nav>

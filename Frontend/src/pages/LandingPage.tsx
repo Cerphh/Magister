@@ -102,12 +102,7 @@ const LandingPage = () => {
         {/* Help Section */}
         <section className="bg-[#144272] text-white px-10 py-12 text-center">
           <h3 className="text-xl font-semibold mb-4">How can we help?</h3>
-          <div className="flex justify-center mb-10">
-            <input type="text" placeholder="Search..." className="w-full max-w-md px-4 py-2 rounded-l-md text-black" />
-            <button className="bg-[#0A2647] px-4 rounded-r-md">
-              <FaSearch />
-            </button>
-          </div>
+          
 
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-left text-white">
