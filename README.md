@@ -40,7 +40,7 @@ Download: Access a vast library of free, downloadable resources curated by fello
 <h2 align="center">Resource Hub</h3>
     <img src="https://github.com/user-attachments/assets/8c948e5b-ffc9-4666-ac00-a0d7f434a566">
 <h2 align="center">Events</h3>
-    <img src="https://github.com/user-attachments/assets/b993069d-3be2-4c95-b102-95a9618f38d7">
+    <img src="https://github.com/user-attachments/assets/b3736516-b56c-4f29-b23a-c45d26797f00">
 </div>
 
 
